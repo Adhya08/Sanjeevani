@@ -1,0 +1,327 @@
+{
+  "produce_mapping": {
+    "Tomato": 0,
+    "Potato": 1,
+    "Onion": 2,
+    "Cabbage": 3,
+    "Carrot": 4,
+    "Banana": 5,
+    "Mango": 6
+  },
+  "demand_tree": {
+    "feature": "rolling_avg",
+    "threshold": 103.57049560546875,
+    "left": {
+      "feature": "rolling_avg",
+      "threshold": 56.55792999267578,
+      "left": {
+        "feature": "rolling_avg",
+        "threshold": 32.35949516296387,
+        "left": {
+          "feature": "rolling_avg",
+          "threshold": 20.06813335418701,
+          "left": {
+            "feature": "rolling_avg",
+            "threshold": 15.1185941696167,
+            "left": {
+              "feature": "rolling_avg",
+              "threshold": 12.308089256286621,
+              "left": 11.3180566792873,
+              "right": 13.962806518031078
+            },
+            "right": {
+              "feature": "is_festival",
+              "threshold": 0.5,
+              "left": 17.511314494840356,
+              "right": 23.123148876899215
+            }
+          },
+          "right": {
+            "feature": "rolling_avg",
+            "threshold": 27.781319618225098,
+            "left": {
+              "feature": "is_festival",
+              "threshold": 0.5,
+              "left": 23.666728143344365,
+              "right": 30.10810117430592
+            },
+            "right": {
+              "feature": "is_festival",
+              "threshold": 0.5,
+              "left": 30.008890345238328,
+              "right": 37.715210749305456
+            }
+          }
+        },
+        "right": {
+          "feature": "rolling_avg",
+          "threshold": 42.48912048339844,
+          "left": {
+            "feature": "is_festival",
+            "threshold": 0.5,
+            "left": {
+              "feature": "rolling_avg",
+              "threshold": 38.82314682006836,
+              "left": 34.94526615432628,
+              "right": 40.14443121060661
+            },
+            "right": {
+              "feature": "rolling_avg",
+              "threshold": 39.76216506958008,
+              "left": 46.34538383171895,
+              "right": 52.89858317817408
+            }
+          },
+          "right": {
+            "feature": "is_festival",
+            "threshold": 0.5,
+            "left": {
+              "feature": "rolling_avg",
+              "threshold": 48.186113357543945,
+              "left": 45.285691520644825,
+              "right": 51.97368489886634
+            },
+            "right": {
+              "feature": "rolling_avg",
+              "threshold": 46.69217109680176,
+              "left": 55.92564381108017,
+              "right": 66.9069943446255
+            }
+          }
+        }
+      },
+      "right": {
+        "feature": "rolling_avg",
+        "threshold": 79.09964752197266,
+        "left": {
+          "feature": "is_festival",
+          "threshold": 0.5,
+          "left": {
+            "feature": "rolling_avg",
+            "threshold": 68.31360626220703,
+            "left": {
+              "feature": "rolling_avg",
+              "threshold": 63.87537956237793,
+              "left": 59.88904748897016,
+              "right": 66.36431757505359
+            },
+            "right": {
+              "feature": "rolling_avg",
+              "threshold": 73.65226364135742,
+              "left": 70.1781483463843,
+              "right": 76.8478953786911
+            }
+          },
+          "right": {
+            "feature": "rolling_avg",
+            "threshold": 68.0600700378418,
+            "left": {
+              "feature": "rolling_avg",
+              "threshold": 62.94732475280762,
+              "left": 76.60943532233858,
+              "right": 85.05965643319317
+            },
+            "right": {
+              "feature": "rolling_avg",
+              "threshold": 72.81768417358398,
+              "left": 92.2408067614704,
+              "right": 99.7471485071229
+            }
+          }
+        },
+        "right": {
+          "feature": "is_festival",
+          "threshold": 0.5,
+          "left": {
+            "feature": "rolling_avg",
+            "threshold": 91.30318069458008,
+            "left": {
+              "feature": "rolling_avg",
+              "threshold": 85.04994201660156,
+              "left": 81.36670980928248,
+              "right": 87.0282592328005
+            },
+            "right": {
+              "feature": "rolling_avg",
+              "threshold": 97.96492004394531,
+              "left": 93.5205019255895,
+              "right": 99.77808053599927
+            }
+          },
+          "right": {
+            "feature": "rolling_avg",
+            "threshold": 91.82453536987305,
+            "left": {
+              "feature": "weather_heat",
+              "threshold": 0.5,
+              "left": 111.19018618740151,
+              "right": 102.57946653745739
+            },
+            "right": {
+              "feature": "rolling_avg",
+              "threshold": 97.71599197387695,
+              "left": 121.9754770897638,
+              "right": 130.75979924729842
+            }
+          }
+        }
+      }
+    },
+    "right": {
+      "feature": "rolling_avg",
+      "threshold": 155.51384735107422,
+      "left": {
+        "feature": "rolling_avg",
+        "threshold": 125.9659309387207,
+        "left": {
+          "feature": "is_festival",
+          "threshold": 0.5,
+          "left": {
+            "feature": "rolling_avg",
+            "threshold": 113.10752868652344,
+            "left": {
+              "feature": "price_level",
+              "threshold": 22.89362335205078,
+              "left": 110.50971229955589,
+              "right": 104.8839985671552
+            },
+            "right": {
+              "feature": "rolling_avg",
+              "threshold": 121.55411148071289,
+              "left": 115.94239795075559,
+              "right": 122.13541744809386
+            }
+          },
+          "right": {
+            "feature": "rolling_avg",
+            "threshold": 115.82223129272461,
+            "left": {
+              "feature": "rolling_avg",
+              "threshold": 107.18877029418945,
+              "left": 135.43013078939896,
+              "right": 142.14974072958603
+            },
+            "right": {
+              "feature": "produce_enc",
+              "threshold": 3.5,
+              "left": 151.76893304409847,
+              "right": 159.44722350128865
+            }
+          }
+        },
+        "right": {
+          "feature": "is_festival",
+          "threshold": 0.5,
+          "left": {
+            "feature": "rolling_avg",
+            "threshold": 139.3780746459961,
+            "left": {
+              "feature": "rolling_avg",
+              "threshold": 133.0607452392578,
+              "left": 129.0236964296646,
+              "right": 136.08418935306352
+            },
+            "right": {
+              "feature": "rolling_avg",
+              "threshold": 148.53668975830078,
+              "left": 142.2159019487719,
+              "right": 151.09462240904608
+            }
+          },
+          "right": {
+            "feature": "rolling_avg",
+            "threshold": 143.38197326660156,
+            "left": {
+              "feature": "produce_enc",
+              "threshold": 0.5,
+              "left": 158.28751917840782,
+              "right": 175.90899040816336
+            },
+            "right": {
+              "feature": "price_level",
+              "threshold": 19.159832000732422,
+              "left": 199.49862540895163,
+              "right": 189.2154930810915
+            }
+          }
+        }
+      },
+      "right": {
+        "feature": "is_festival",
+        "threshold": 0.5,
+        "left": {
+          "feature": "rolling_avg",
+          "threshold": 183.69409942626953,
+          "left": {
+            "feature": "rolling_avg",
+            "threshold": 167.54192352294922,
+            "left": {
+              "feature": "rolling_avg",
+              "threshold": 162.84791564941406,
+              "left": 157.60505336963655,
+              "right": 164.4836369111765
+            },
+            "right": {
+              "feature": "rolling_avg",
+              "threshold": 173.4473876953125,
+              "left": 170.2706067017558,
+              "right": 177.1487703189122
+            }
+          },
+          "right": {
+            "feature": "weather_heat",
+            "threshold": 0.5,
+            "left": {
+              "feature": "rolling_avg",
+              "threshold": 193.40480041503906,
+              "left": 190.41190023462192,
+              "right": 199.17239312743365
+            },
+            "right": {
+              "feature": "produce_enc",
+              "threshold": 0.5,
+              "left": 162.46136568758118,
+              "right": 186.7728642399531
+            }
+          }
+        },
+        "right": {
+          "feature": "rolling_avg",
+          "threshold": 180.0717010498047,
+          "left": {
+            "feature": "rolling_avg",
+            "threshold": 167.04924774169922,
+            "left": {
+              "feature": "rolling_avg",
+              "threshold": 158.70376586914062,
+              "left": 198.6988229247449,
+              "right": 208.66526523045997
+            },
+            "right": {
+              "feature": "produce_enc",
+              "threshold": 0.5,
+              "left": 205.27285300893362,
+              "right": 226.37434403170542
+            }
+          },
+          "right": {
+            "feature": "rolling_avg",
+            "threshold": 193.06732940673828,
+            "left": {
+              "feature": "rolling_avg",
+              "threshold": 183.63662719726562,
+              "left": 233.8762903519588,
+              "right": 244.57170850318894
+            },
+            "right": {
+              "feature": "price_level",
+              "threshold": 93.693115234375,
+              "left": 262.68560348568565,
+              "right": 228.45161163790235
+            }
+          }
+        }
+      }
+    }
+  }
+}
