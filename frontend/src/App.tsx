@@ -115,12 +115,6 @@ export const App: React.FC = () => {
           </Link>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="max-w-7xl mx-auto w-full p-6 text-center text-xs text-slate-600 border-t border-slate-900 z-10">
-        Sanjeevani • Powered by Fastify WebSocket Engine &amp; React Vite • Zero-Waste Agriculture Initiative
-      </footer>
-
       <ActivityLog />
     </div>
   )
