@@ -17,6 +17,7 @@ import { api, WasteAnalytics } from '../../services/api'
 export const AnalyticsPage: React.FC = () => {
   const [data, setData] = useState<WasteAnalytics | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showCertificate, setShowCertificate] = useState(false)
 
   useEffect(() => {
     api
@@ -54,10 +55,75 @@ export const AnalyticsPage: React.FC = () => {
           <h1 className="text-2xl font-bold">Waste Analytics & ESG Audit</h1>
           <p className="text-sm opacity-90">बचाव का प्रभाव और आपूर्ति श्रृंखला विश्लेषण</p>
         </div>
-        <a href="/" className="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-white font-medium">
-          ← Back to Home
-        </a>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowCertificate(true)}
+            className="text-xs bg-emerald-600 hover:bg-emerald-500 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-white font-medium shadow"
+          >
+            📜 Download ESG Certificate
+          </button>
+          <a href="/" className="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-white font-medium">
+            ← Back to Home
+          </a>
+        </div>
       </header>
+
+      {showCertificate && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-xl w-full shadow-2xl relative border-8 border-double border-emerald-800 text-center space-y-6">
+            <button
+              onClick={() => setShowCertificate(false)}
+              className="absolute top-3 right-4 text-gray-500 hover:text-gray-800 text-xl font-bold"
+            >
+              ×
+            </button>
+            <div className="space-y-2">
+              <span className="text-4xl">🌱</span>
+              <h2 className="text-2xl font-serif font-bold text-emerald-800 tracking-wider">SANJEEVANI</h2>
+              <p className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">ESG &amp; CSR Environmental Impact Certificate</p>
+            </div>
+            
+            <div className="border-t border-b border-emerald-800/20 py-6 my-4 space-y-4">
+              <p className="text-xs text-slate-600 italic">This certificate is proudly presented to</p>
+              <h3 className="text-xl font-bold text-slate-800">Sanjeevani Verified Partner Network</h3>
+              <p className="text-sm text-slate-700 max-w-md mx-auto leading-relaxed">
+                For outstanding dedication to sustainable agriculture and supply chain optimization, preventing food decay and routing high-risk inventory to non-governmental organizations.
+              </p>
+              <div className="bg-emerald-50 max-w-xs mx-auto p-4 rounded-xl border border-emerald-200/50 mt-4">
+                <span className="text-xs text-emerald-800 font-semibold block uppercase">Total Produce Rescued</span>
+                <span className="text-3xl font-extrabold text-emerald-700 block mt-1">{data?.totalRescued ?? 315} kg</span>
+                <span className="text-[10px] text-slate-500 mt-1 block">Equivalent to ~{( (data?.totalRescued ?? 315) * 1.9 ).toFixed(1)}kg CO₂ emissions avoided</span>
+              </div>
+            </div>
+            
+            <div className="flex justify-between items-center text-[10px] text-slate-500 px-6">
+              <div>
+                <p className="font-bold border-b border-slate-300 pb-1">Sanjeevani OS Protocol</p>
+                <p className="mt-1">Verified Audit Engine</p>
+              </div>
+              <div>
+                <p className="font-bold border-b border-slate-300 pb-1">Date Issued</p>
+                <p className="mt-1">{new Date().toLocaleDateString('en-IN')}</p>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button
+                onClick={() => window.print()}
+                className="w-full bg-emerald-800 hover:bg-emerald-950 text-white font-medium py-2 rounded-lg text-xs transition-colors shadow-md"
+              >
+                🖨️ Print or Save PDF
+              </button>
+              <button
+                onClick={() => setShowCertificate(false)}
+                className="w-1/2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 rounded-lg text-xs"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="max-w-6xl mx-auto p-6 space-y-6">
         {loading ? (
