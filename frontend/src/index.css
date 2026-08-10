@@ -103,3 +103,35 @@ body {
 .organic-edge {
   border-radius: 60% 40% 60% 40% / 40% 60% 40% 60%;
 }
+/* Running forest background panning animation */
+@keyframes pan-forest {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 0%; }
+}
+
+.bg-running-forest {
+  background-image: url('https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&q=80&w=2000');
+  background-size: 300% 100%;
+  animation: pan-forest 180s linear infinite;
+}
+
+/* Crop swaying animations */
+@keyframes sway-slow {
+  0%, 100% { transform: rotate(0deg) skewX(0deg); }
+  50% { transform: rotate(2deg) skewX(1.5deg); }
+}
+
+@keyframes sway-medium {
+  0%, 100% { transform: rotate(0deg) skewX(0deg); }
+  50% { transform: rotate(-3deg) skewX(-2.5deg); }
+}
+
+.animate-sway-slow {
+  animation: sway-slow 8s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.animate-sway-medium {
+  animation: sway-medium 5.5s ease-in-out infinite;
+  transform-origin: bottom center;
+}
