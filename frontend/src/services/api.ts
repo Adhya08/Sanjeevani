@@ -110,6 +110,9 @@ export const api = {
   getListing: (id: string) =>
     get<{ listing: Listing }>(`/listings/${id}`),
 
+  getProduceTypes: () =>
+    get<{ produceTypes: string[] }>('/meta/produce-types'),
+
   createListing: (data: {
     orgId?: string
     orgName?: string

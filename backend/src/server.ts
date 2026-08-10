@@ -72,8 +72,15 @@ function getRiskTier(score: number): Listing['riskTier'] {
 }
 
 const CITIES = ['Delhi', 'Gurgaon', 'Noida', 'Ghaziabad', 'Faridabad', 'Mehrauli', 'Dabri']
-const ORG_NAMES = ['Ramesh Farms', 'Bhanu Agri', 'Gopal Traders', 'Sunita Produce', 'Ravi Harvest']
-const PRODUCE_TYPES = ['Tomato', 'Potato', 'Onion', 'Cabbage', 'Carrot', 'Banana', 'Mango'] as const
+const ORG_NAMES = [
+  'Ramesh Farms', 'Bhanu Agri', 'Gopal Traders', 'Sunita Produce', 'Ravi Harvest',
+  'Verma Organic Farm', 'Kisan Co-operative', 'Greenfield Agro', 'Fresh India Farms',
+  'Delhi Mandi Traders', 'Chaudhary Organic Crops', 'Sethi Distributors', 'Patel Veg Supply'
+]
+const PRODUCE_TYPES = [
+  'Tomato', 'Potato', 'Onion', 'Cabbage', 'Carrot', 'Banana', 'Mango',
+  'Apple', 'Orange', 'Spinach', 'Cauliflower', 'Grapes', 'Guava', 'Brinjal'
+] as const
 
 // ─── ML MODEL PARSER & EVALUATION ────────────────────────────────────────────
 
@@ -276,6 +283,11 @@ async function buildServer() {
   fastify.get('/health', async () => {
     return { status: 'ok', timestamp: new Date().toISOString() }
   })
+
+  fastify.get('/api/v1/meta/produce-types', async () => {
+    return { produceTypes: PRODUCE_TYPES }
+  })
+
 
   // ─── AUTHENTICATION ROUTES ─────────────────────────────────────────────────
 
