@@ -4,8 +4,10 @@ import fastifyCors from '@fastify/cors'
 import fastifyJwt from '@fastify/jwt'
 import fastifyRateLimit from '@fastify/rate-limit'
 import { WebSocket } from 'ws'
+import * as fs from 'fs'
+import * as path from 'path'
 
-// Mock data store - in production would use PostgreSQL/Redis
+// Mock database store
 interface Listing {
   id: string
   orgId: string
@@ -47,17 +49,16 @@ interface AgentEvent {
   eventType: string
   payload: Record<string, unknown>
   humanReadableText: string
-  statusColor: 'amber' | 'blue' | 'green' | 'red'  // amber=searching, blue=negotiating, green=success, red=blocked
+  statusColor: 'amber' | 'blue' | 'green' | 'red'
   ts: string
 }
 
-// In-memory stores for demo
+// In-memory data store for live simulation
 const listings: Record<string, Listing> = {}
 const orders: Record<string, Order> = {}
 const agentEvents: AgentEvent[] = []
 const sessionSubscribers: Map<string, Set<WebSocket>> = new Map()
 
-// Mock seed data
 let listingIdCounter = 1
 let orderIdCounter = 1
 let eventIdCounter = 1
@@ -72,11 +73,143 @@ function getRiskTier(score: number): Listing['riskTier'] {
 
 const CITIES = ['Delhi', 'Gurgaon', 'Noida', 'Ghaziabad', 'Faridabad', 'Mehrauli', 'Dabri']
 const ORG_NAMES = ['Ramesh Farms', 'Bhanu Agri', 'Gopal Traders', 'Sunita Produce', 'Ravi Harvest']
+const PRODUCE_TYPES = ['Tomato', 'Potato', 'Onion', 'Cabbage', 'Carrot', 'Banana', 'Mango'] as const
 
-// Generate mock listings
-const PRODUCE_TYPES = ['Tomato', 'Potato', 'Onion', 'Cabbage', 'Cauliflower', 'Carrot', 'Banana', 'Mango'] as const
+// ─── ML MODEL PARSER & EVALUATION ────────────────────────────────────────────
 
+interface DecisionNode {
+  feature?: string
+  threshold?: number
+  left?: number | DecisionNode
+  right?: number | DecisionNode
+}
+
+let shelfLifeModel: {
+  produce_mapping: Record<string, number>
+  risk_tree: DecisionNode
+  rem_days_tree: DecisionNode
+} | null = null
+
+let demandModel: {
+  produce_mapping: Record<string, number>
+  demand_tree: DecisionNode
+} | null = null
+
+function loadMLModels() {
+  try {
+    const shelfLifePath = path.join(__dirname, 'models', 'shelf_life_model.json')
+    const demandPath = path.join(__dirname, 'models', 'demand_model.json')
+    if (fs.existsSync(shelfLifePath)) {
+      shelfLifeModel = JSON.parse(fs.readFileSync(shelfLifePath, 'utf-8'))
+      console.log('Successfully loaded Shelf-Life model parameters.')
+    }
+    if (fs.existsSync(demandPath)) {
+      demandModel = JSON.parse(fs.readFileSync(demandPath, 'utf-8'))
+      console.log('Successfully loaded Demand Prediction model parameters.')
+    }
+  } catch (err) {
+    console.error('Failed to load ML model JSONs, falling back to heuristics.', err)
+  }
+}
+
+// Evaluate recursive decision tree
+function evaluateTree(node: number | DecisionNode, features: Record<string, number>): number {
+  if (typeof node === 'number') {
+    return node
+  }
+  const featureVal = features[node.feature!]
+  if (featureVal === undefined) return 0
+  if (featureVal <= node.threshold!) {
+    return evaluateTree(node.left!, features)
+  } else {
+    return evaluateTree(node.right!, features)
+  }
+}
+
+// Predict waste risk & shelf life using model
+function getMLRiskScore(produceType: string, temp: number, hum: number, daysSinceHarvest: number): {
+  riskScore: number
+  remDays: [number, number]
+  riskTier: Listing['riskTier']
+} {
+  if (!shelfLifeModel) {
+    // Fallback heuristic
+    const days = Math.floor(daysSinceHarvest)
+    const tempFactor = (temp / 30) * 20
+    const dayFactor = Math.min(days * 8, 50)
+    const produceFactor = ['Tomato', 'Banana', 'Mango'].includes(produceType) ? 10 : 0
+    const riskScore = Math.min(100, Math.floor(tempFactor + dayFactor + produceFactor + Math.random() * 5))
+    const remainingDays = Math.max(1, 10 - days)
+    const remDays: [number, number] = [Math.max(1, remainingDays - 2), remainingDays + 1]
+    return { riskScore, remDays, riskTier: getRiskTier(riskScore) }
+  }
+
+  const produce_enc = shelfLifeModel.produce_mapping[produceType] ?? 0
+  const features = { produce_enc, temp, hum, days_since_harvest: daysSinceHarvest }
+  const riskScore = Math.min(100, Math.max(0, evaluateTree(shelfLifeModel.risk_tree, features)))
+  const remDaysMean = evaluateTree(shelfLifeModel.rem_days_tree, features)
+
+  const minDays = Math.max(1, Math.floor(remDaysMean * 0.8))
+  const maxDays = Math.max(2, Math.ceil(remDaysMean * 1.2))
+
+  return {
+    riskScore: Math.round(riskScore),
+    remDays: [minDays, maxDays],
+    riskTier: getRiskTier(riskScore)
+  }
+}
+
+// Predict demand suggested range
+function getMLDemandForecast(
+  produceType: string,
+  buyerType: number,
+  rollingAvg: number,
+  month: number,
+  isFestival: number,
+  weatherRain: number,
+  weatherHeat: number,
+  priceLevel: number
+): { min: number; max: number; rationale: string } {
+  if (!demandModel) {
+    const base = rollingAvg || 40
+    return {
+      min: Math.round(base * 0.9),
+      max: Math.round(base * 1.1),
+      rationale: `Steady weekly demand, avg ${Math.round(base)}kg`
+    }
+  }
+
+  const produce_enc = demandModel.produce_mapping[produceType] ?? 0
+  const features = {
+    produce_enc,
+    buyer_type: buyerType,
+    rolling_avg: rollingAvg,
+    month,
+    is_festival: isFestival,
+    weather_rain: weatherRain,
+    weather_heat: weatherHeat,
+    price_level: priceLevel
+  }
+
+  const demand = evaluateTree(demandModel.demand_tree, features)
+
+  const parts: string[] = []
+  if (isFestival) parts.push('festival peak')
+  if (weatherRain) parts.push(produceType === 'Potato' ? 'monsoon rain' : 'monsoon wet weather')
+  if (weatherHeat) parts.push('summer heat')
+  parts.push(`price ₹${priceLevel}/kg`)
+
+  const rationale = `Grounded recommendation based on rolling avg of ${rollingAvg}kg, accounting for: ${parts.join(', ')}.`
+  return {
+    min: Math.max(5, Math.round(demand * 0.85)),
+    max: Math.max(10, Math.round(demand * 1.15)),
+    rationale
+  }
+}
+
+// Initialize seed data using ML predictions
 function createMockListings() {
+  loadMLModels()
   const orgIds = ['org_1', 'org_2', 'org_3', 'org_4', 'org_5']
 
   PRODUCE_TYPES.forEach((produce, i) => {
@@ -85,9 +218,11 @@ function createMockListings() {
       const orgId = orgIds[i % orgIds.length]
       const quantity = Math.floor(Math.random() * 500) + 50
       const price = Math.floor(Math.random() * 20) + 18
-      // Mix of risks: some fresh, some moderate, some high (for NGO view)
-      const riskScore = j === 2 ? Math.floor(Math.random() * 30) + 65 : Math.floor(Math.random() * 55)
-      const daysHarvested = Math.floor(Math.random() * 5) + 1
+      const temp = 2 + Math.floor(Math.random() * 8)
+      const hum = 80 + Math.floor(Math.random() * 15)
+      const daysHarvested = j === 2 ? Math.floor(Math.random() * 4) + 6 : Math.floor(Math.random() * 3) + 1
+
+      const { riskScore, remDays, riskTier } = getMLRiskScore(produce, temp, hum, daysHarvested)
 
       listings[id] = {
         id,
@@ -98,12 +233,12 @@ function createMockListings() {
         quantityAvailable: quantity,
         pricePerKg: price,
         harvestOrArrivalTs: new Date(Date.now() - daysHarvested * 24 * 60 * 60 * 1000).toISOString(),
-        storageTemp: 2 + Math.floor(Math.random() * 8),
-        storageHumidity: 80 + Math.floor(Math.random() * 15),
+        storageTemp: temp,
+        storageHumidity: hum,
         wasteRiskScore: riskScore,
-        estimatedDaysRange: [Math.max(1, 7 - daysHarvested), Math.max(2, 10 - daysHarvested)] as [number, number],
-        confidence: 0.78 + Math.random() * 0.2,
-        riskTier: getRiskTier(riskScore),
+        estimatedDaysRange: remDays,
+        confidence: 0.82 + Math.random() * 0.15,
+        riskTier,
         status: 'active',
         city: CITIES[i % CITIES.length],
         distanceKm: Math.floor(Math.random() * 25) + 1,
@@ -116,12 +251,10 @@ function createMockListings() {
 
 createMockListings()
 
-// Fastify server
-const fastify = Fastify({
-  logger: true,
-})
+// ─── FASTIFY ROUTING SETUP ───────────────────────────────────────────────────
 
-// Register plugins
+const fastify = Fastify({ logger: true })
+
 async function buildServer() {
   await fastify.register(fastifyCors, {
     origin: true,
@@ -129,7 +262,7 @@ async function buildServer() {
   })
 
   await fastify.register(fastifyRateLimit, {
-    max: 100,
+    max: 200,
     timeWindow: '1 minute',
   })
 
@@ -140,230 +273,47 @@ async function buildServer() {
 
   await fastify.register(fastifyWebsocket)
 
-  // Health check
   fastify.get('/health', async () => {
     return { status: 'ok', timestamp: new Date().toISOString() }
   })
 
-  // API Routes
+  // ─── AUTHENTICATION ROUTES ─────────────────────────────────────────────────
 
-  // GET /api/v1/listings - Browse listings (Buyer Dashboard)
-  fastify.get('/api/v1/listings', async (request, reply) => {
-    const { produceType, maxPrice, maxDistanceKm, riskTier, lat, lng } = request.query as Record<string, string>
-
-    let results = Object.values(listings).filter(l => l.status === 'active')
-
-    if (produceType) {
-      results = results.filter(l => l.produceType === produceType)
-    }
-    if (maxPrice) {
-      const price = parseFloat(maxPrice)
-      results = results.filter(l => l.pricePerKg <= price)
-    }
-    if (riskTier) {
-      results = results.filter(l => l.riskTier === riskTier)
-    }
-
-    // Sort by risk score ascending (freshest first)
-    results.sort((a, b) => a.wasteRiskScore - b.wasteRiskScore)
-
-    return {
-      listings: results,
-      count: results.length,
-    }
+  fastify.post('/api/v1/auth/request-otp', async (request, reply) => {
+    const { phone } = request.body as { phone: string }
+    if (!phone) return reply.code(400).send({ error: 'Phone number is required' })
+    return { message: 'OTP sent successfully (Simulated: use any 6 digits)', phone }
   })
 
-  // GET /api/v1/listings/:id - Get single listing
+  fastify.post('/api/v1/auth/verify-otp', async (request, reply) => {
+    const { phone, otp, role } = request.body as { phone: string; otp: string; role: string }
+    if (!phone || !otp) return reply.code(400).send({ error: 'Phone and OTP are required' })
+
+    const token = fastify.jwt.sign({ phone, role, userId: `user_${phone}` })
+    return { token, role, userId: `user_${phone}` }
+  })
+
+  // ─── LISTINGS ENDPOINTS ────────────────────────────────────────────────────
+
+  fastify.get('/api/v1/listings', async (request, reply) => {
+    const { produceType, maxPrice, maxDistanceKm, riskTier } = request.query as Record<string, string>
+    let results = Object.values(listings).filter(l => l.status === 'active' || l.status === 'low_stock')
+
+    if (produceType) results = results.filter(l => l.produceType === produceType)
+    if (maxPrice) results = results.filter(l => l.pricePerKg <= parseFloat(maxPrice))
+    if (riskTier) results = results.filter(l => l.riskTier === riskTier)
+
+    results.sort((a, b) => a.wasteRiskScore - b.wasteRiskScore)
+    return { listings: results, count: results.length }
+  })
+
   fastify.get('/api/v1/listings/:id', async (request, reply) => {
     const { id } = request.params as { id: string }
     const listing = listings[id]
-
-    if (!listing) {
-      return reply.code(404).send({ error: 'Listing not found' })
-    }
-
+    if (!listing) return reply.code(404).send({ error: 'Listing not found' })
     return { listing }
   })
 
-  // GET /api/v1/freshness/:listingId - Get waste risk score
-  fastify.get('/api/v1/freshness/:listingId', async (request, reply) => {
-    const { listingId } = request.params as { listingId: string }
-    const listing = listings[listingId]
-
-    if (!listing) {
-      return reply.code(404).send({ error: 'Listing not found' })
-    }
-
-    return {
-      wasteRiskScore: listing.wasteRiskScore,
-      estimatedDaysRange: [1, 7],
-      confidence: listing.confidence,
-      riskTier: listing.riskTier,
-    }
-  })
-
-  // GET /api/v1/forecast/demand - Get demand prediction
-  fastify.get('/api/v1/forecast/demand', async (request, reply) => {
-    const { orgId, produceType } = request.query as Record<string, string>
-
-    // Mock prediction based on historical patterns
-    const basePredictions: Record<string, { min: number; max: number; rationale: string }> = {
-      'Tomato': { min: 35, max: 45, rationale: 'Last 4 weeks avg: 40kg, monsoon typically +5%' },
-      'Potato': { min: 50, max: 70, rationale: 'Steady weekly demand, 25kg avg' },
-      'Onion': { min: 40, max: 60, rationale: 'Weekly variation, avg 50kg' },
-      'Banana': { min: 25, max: 35, rationale: 'Daily consumption, avoid over-purchasing' },
-      'Mango': { min: 15, max: 25, rationale: 'Seasonal peak, limited availability' },
-    }
-
-    const prediction = basePredictions[produceType || 'Tomato'] || basePredictions['Tomato']
-
-    return {
-      orgId,
-      produceType,
-      suggestedQtyMin: prediction.min,
-      suggestedQtyMax: prediction.max,
-      rationale: prediction.rationale,
-    }
-  })
-
-  // POST /api/v1/orders - Place virtual order
-  fastify.post('/api/v1/orders', async (request, reply) => {
-    const { listingId, buyerOrgId, quantity } = request.body as {
-      listingId: string
-      buyerOrgId: string
-      quantity: number
-    }
-
-    const listing = listings[listingId]
-
-    if (!listing) {
-      return reply.code(404).send({ error: 'Listing not found' })
-    }
-
-    // Check available quantity
-    if (listing.quantityAvailable < quantity) {
-      return reply.code(400).send({
-        error: 'Insufficient inventory',
-        available: listing.quantityAvailable,
-        requested: quantity,
-      })
-    }
-
-    // Create order
-    const orderId = `order_${orderIdCounter++}`
-    const order: Order = {
-      id: orderId,
-      listingId,
-      buyerOrgId,
-      quantity,
-      negotiatedPrice: listing.pricePerKg,
-      status: 'placed',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
-    orders[orderId] = order
-
-    // Add initial agent event
-    const event: AgentEvent = {
-      id: `event_${eventIdCounter++}`,
-      sessionId: orderId,
-      listingId,
-      agentName: 'buyer_agent',
-      eventType: 'order_placed',
-      payload: { quantity, price: listing.pricePerKg },
-      humanReadableText: `🛒 Buyer Agent placed order for ${quantity}kg ${listing.produceType} at ₹${listing.pricePerKg}/kg`,
-      statusColor: 'blue',
-      ts: new Date().toISOString(),
-    }
-    agentEvents.push(event)
-    broadcastEvent(event)
-
-    // Simulate negotiation process
-    setTimeout(() => simulateNegotiation(orderId), 1000)
-
-    return {
-      orderId,
-      status: order.status,
-      listingId,
-      quantity,
-    }
-  })
-
-  // GET /api/v1/orders/:id - Get order status
-  fastify.get('/api/v1/orders/:id', async (request, reply) => {
-    const { id } = request.params as { id: string }
-    const order = orders[id]
-
-    if (!order) {
-      return reply.code(404).send({ error: 'Order not found' })
-    }
-
-    const listing = listings[order.listingId]
-
-    return {
-      order,
-      listing: listing ? {
-        produceType: listing.produceType,
-        remainingQuantity: listing.quantityAvailable,
-      } : null,
-    }
-  })
-
-  // GET /api/v1/analytics/waste - Waste analytics
-  fastify.get('/api/v1/analytics/waste', async (request, reply) => {
-    const { orgId, period } = request.query as Record<string, string>
-
-    const allListings = Object.values(listings)
-    const totalListed = allListings.reduce((sum, l) => sum + l.quantityTotal, 0)
-    const totalSold = allListings.reduce((sum, l) => sum + (l.quantityTotal - l.quantityAvailable), 0)
-    const totalAvailable = allListings.reduce((sum, l) => sum + l.quantityAvailable, 0)
-
-    return {
-      totalListed,
-      totalSold,
-      totalRescued: Math.floor(totalAvailable * 0.15), // Mock 15% rescue rate
-      totalLost: Math.floor(totalAvailable * 0.05), // Mock 5% loss
-      wastePercentage: 5,
-      rescuePercentage: 15,
-      byProduceType: PRODUCE_TYPES.reduce((acc, type) => {
-        const typeListings = allListings.filter(l => l.produceType === type)
-        acc[type] = {
-          listed: typeListings.reduce((s, l) => s + l.quantityTotal, 0),
-          sold: typeListings.reduce((s, l) => s + (l.quantityTotal - l.quantityAvailable), 0),
-          rescued: Math.floor(typeListings.reduce((s, l) => s + l.quantityAvailable, 0) * 0.15),
-        }
-        return acc
-      }, {} as Record<string, { listed: number; sold: number; rescued: number }>),
-    }
-  })
-
-  // WebSocket connection handler - session_id optional; '_global_' key used without it
-  fastify.get('/ws/v1/agent-log', { websocket: true }, (socket, request) => {
-    const { sessionId } = (request.query as { sessionId?: string })
-    const key = sessionId || '_global_'
-
-    // Add socket to subscribers
-    if (!sessionSubscribers.has(key)) {
-      sessionSubscribers.set(key, new Set())
-    }
-    sessionSubscribers.get(key)!.add(socket)
-
-    // Send recent history on connect
-    const recentEvents = agentEvents.slice(-20)
-    socket.send(JSON.stringify({ type: 'history', events: recentEvents }))
-
-    socket.on('close', () => {
-      const subscribers = sessionSubscribers.get(key)
-      if (subscribers) {
-        subscribers.delete(socket)
-        if (subscribers.size === 0) {
-          sessionSubscribers.delete(key)
-        }
-      }
-    })
-  })
-
-  // POST /api/v1/listings - Create new listing
   fastify.post('/api/v1/listings', async (request, reply) => {
     const body = request.body as {
       orgId?: string
@@ -383,29 +333,29 @@ async function buildServer() {
 
     const id = `listing_${listingIdCounter++}`
     const harvestTs = body.harvestOrArrivalTs || new Date().toISOString()
-    const daysSinceHarvest = Math.floor((Date.now() - new Date(harvestTs).getTime()) / 86400000)
-    const tempFactor = ((body.storageTemp ?? 5) / 30) * 20
-    const dayFactor = Math.min(daysSinceHarvest * 8, 50)
-    const produceFactor = ['Tomato', 'Banana', 'Mango'].includes(body.produceType) ? 10 : 0
-    const riskScore = Math.min(100, Math.floor(tempFactor + dayFactor + produceFactor + Math.random() * 5))
+    const daysSinceHarvest = Math.max(0.1, (Date.now() - new Date(harvestTs).getTime()) / 86400000)
+    const temp = body.storageTemp ?? 6
+    const hum = body.storageHumidity ?? 85
+
+    const { riskScore, remDays, riskTier } = getMLRiskScore(body.produceType, temp, hum, daysSinceHarvest)
 
     const newListing: Listing = {
       id,
       orgId: body.orgId || 'org_producer',
-      orgName: body.orgName || 'My Farm',
+      orgName: body.orgName || 'My Farm Store',
       produceType: body.produceType,
       quantityTotal: body.quantityTotal,
       quantityAvailable: body.quantityTotal,
       pricePerKg: body.pricePerKg,
       harvestOrArrivalTs: harvestTs,
-      storageTemp: body.storageTemp ?? 4,
-      storageHumidity: body.storageHumidity ?? 85,
+      storageTemp: temp,
+      storageHumidity: hum,
       wasteRiskScore: riskScore,
-      estimatedDaysRange: [Math.max(1, 7 - daysSinceHarvest), Math.max(2, 10 - daysSinceHarvest)] as [number, number],
-      confidence: 0.78 + Math.random() * 0.2,
-      riskTier: getRiskTier(riskScore),
+      estimatedDaysRange: remDays,
+      confidence: 0.85 + Math.random() * 0.1,
+      riskTier,
       status: 'active',
-      city: body.city || 'Delhi',
+      city: body.city || 'Delhi NCR',
       distanceKm: Math.floor(Math.random() * 20) + 1,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -418,7 +368,7 @@ async function buildServer() {
       agentName: 'producer_agent',
       eventType: 'listing_created',
       payload: { produceType: body.produceType, quantity: body.quantityTotal, price: body.pricePerKg, riskScore },
-      humanReadableText: `🌱 New listing created: ${body.quantityTotal}kg ${body.produceType} @ ₹${body.pricePerKg}/kg. Waste risk: ${riskScore}%`,
+      humanReadableText: `🌱 Producer Agent: Listed ${body.quantityTotal}kg of ${body.produceType} @ ₹${body.pricePerKg}/kg. ML Shelf-life engine predicts waste risk of ${riskScore}%`,
       statusColor: riskScore > 60 ? 'amber' : 'green',
       ts: new Date().toISOString(),
     }
@@ -428,43 +378,235 @@ async function buildServer() {
     return { listing: newListing }
   })
 
-  // GET /api/v1/rescue/eligible - NGO high-risk stock
+  // ─── FRESHNESS ENDPOINT ────────────────────────────────────────────────────
+
+  fastify.get('/api/v1/freshness/:listingId', async (request, reply) => {
+    const { listingId } = request.params as { listingId: string }
+    const listing = listings[listingId]
+    if (!listing) return reply.code(404).send({ error: 'Listing not found' })
+
+    const daysSinceHarvest = Math.max(0.1, (Date.now() - new Date(listing.harvestOrArrivalTs).getTime()) / 86400000)
+    const { riskScore, remDays, riskTier } = getMLRiskScore(listing.produceType, listing.storageTemp, listing.storageHumidity, daysSinceHarvest)
+
+    return {
+      wasteRiskScore: riskScore,
+      estimatedDaysRange: remDays,
+      confidence: listing.confidence,
+      riskTier,
+    }
+  })
+
+  // ─── DEMAND FORECAST ENDPOINT ──────────────────────────────────────────────
+
+  fastify.get('/api/v1/forecast/demand', async (request, reply) => {
+    const query = request.query as Record<string, string>
+    const produceType = query.produceType || 'Tomato'
+    const buyerType = query.buyerType ? parseInt(query.buyerType) : 0
+    const rollingAvg = query.rollingAvg ? parseFloat(query.rollingAvg) : 50
+    const priceLevel = query.priceLevel ? parseFloat(query.priceLevel) : 28
+
+    const now = new Date()
+    const forecast = getMLDemandForecast(
+      produceType,
+      buyerType,
+      rollingAvg,
+      now.getMonth() + 1,
+      0, // isFestival
+      0, // weatherRain
+      0, // weatherHeat
+      priceLevel
+    )
+
+    return {
+      orgId: query.orgId || 'org_buyer',
+      produceType,
+      suggestedQtyMin: forecast.min,
+      suggestedQtyMax: forecast.max,
+      rationale: forecast.rationale,
+    }
+  })
+
+  // ─── VIRTUAL ORDER & BARGAINING PROTOCOL ───────────────────────────────────
+
+  fastify.post('/api/v1/orders', async (request, reply) => {
+    const { listingId, buyerOrgId, quantity } = request.body as {
+      listingId: string
+      buyerOrgId: string
+      quantity: number
+    }
+
+    // Atomic Concurrency Guard
+    const listing = listings[listingId]
+    if (!listing) return reply.code(404).send({ error: 'Listing not found' })
+
+    if (listing.quantityAvailable < quantity || listing.status === 'closed' || listing.status === 'rescued') {
+      return reply.code(400).send({
+        error: 'Insufficient inventory. The listing does not have enough crop available.',
+        available: listing.quantityAvailable,
+        requested: quantity,
+      })
+    }
+
+    // Instantly allocate quantity as pending so concurrent orders don't double book
+    listing.quantityAvailable -= quantity
+    if (listing.quantityAvailable === 0) {
+      listing.status = 'closed'
+    } else if (listing.quantityAvailable < listing.quantityTotal * 0.1) {
+      listing.status = 'low_stock'
+    }
+
+    const orderId = `order_${orderIdCounter++}`
+    const order: Order = {
+      id: orderId,
+      listingId,
+      buyerOrgId: buyerOrgId || 'org_buyer_1',
+      quantity,
+      negotiatedPrice: listing.pricePerKg,
+      status: 'placed',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+    orders[orderId] = order
+
+    const event: AgentEvent = {
+      id: `event_${eventIdCounter++}`,
+      sessionId: orderId,
+      listingId,
+      agentName: 'buyer_agent',
+      eventType: 'order_placed',
+      payload: { quantity, listPrice: listing.pricePerKg },
+      humanReadableText: `🛒 Buyer Agent: Placed order request for ${quantity}kg of ${listing.produceType} at list price of ₹${listing.pricePerKg}/kg. Initiating multi-turn bargaining.`,
+      statusColor: 'blue',
+      ts: new Date().toISOString(),
+    }
+    agentEvents.push(event)
+    broadcastEvent(event)
+
+    // Trigger multi-round negotiation process
+    setTimeout(() => runAgentNegotiation(orderId), 800)
+
+    return {
+      orderId,
+      status: order.status,
+      listingId,
+      quantity,
+    }
+  })
+
+  fastify.get('/api/v1/orders/:id', async (request, reply) => {
+    const { id } = request.params as { id: string }
+    const order = orders[id]
+    if (!order) return reply.code(404).send({ error: 'Order not found' })
+
+    const listing = listings[order.listingId]
+    return {
+      order,
+      listing: listing ? {
+        produceType: listing.produceType,
+        remainingQuantity: listing.quantityAvailable,
+        riskScore: listing.wasteRiskScore,
+      } : null,
+    }
+  })
+
+  // ─── NGO DISPATCH & RESCUE ─────────────────────────────────────────────────
+
   fastify.get('/api/v1/rescue/eligible', async () => {
     const rescueListings = Object.values(listings).filter(
-      l => l.wasteRiskScore > 65 && l.quantityAvailable > 0 && l.status !== 'rescued'
+      l => l.wasteRiskScore > 60 && l.quantityAvailable > 0 && l.status !== 'rescued' && l.status !== 'closed'
     )
     rescueListings.sort((a, b) => b.wasteRiskScore - a.wasteRiskScore)
     return { listings: rescueListings, count: rescueListings.length }
   })
 
-  // POST /api/v1/rescue/:listingId - NGO claims rescue
   fastify.post<{ Params: { listingId: string } }>('/api/v1/rescue/:listingId', async (request, reply) => {
     const listing = listings[request.params.listingId]
     if (!listing) return reply.code(404).send({ error: 'Listing not found' })
+
     listing.status = 'rescued'
     listing.updatedAt = new Date().toISOString()
+
     const event: AgentEvent = {
       id: `event_${eventIdCounter++}`,
       listingId: listing.id,
       agentName: 'system',
-      eventType: 'auto_rescue',
+      eventType: 'manual_rescue',
       payload: { listingId: listing.id, kgRescued: listing.quantityAvailable },
-      humanReadableText: `💚 NGO rescue: ${listing.quantityAvailable}kg ${listing.produceType} saved (risk ${listing.wasteRiskScore}%)`,
+      humanReadableText: `💚 NGO Rescue Confirmed: Dispatching vehicle to rescue ${listing.quantityAvailable}kg of ${listing.produceType} (Waste Risk: ${listing.wasteRiskScore}%).`,
       statusColor: 'green',
       ts: new Date().toISOString(),
     }
     agentEvents.push(event)
     broadcastEvent(event)
+
     return { listing, event }
+  })
+
+  // ─── WASTE ANALYTICS & ESG AUDIT ───────────────────────────────────────────
+
+  fastify.get('/api/v1/analytics/waste', async (request, reply) => {
+    const allListings = Object.values(listings)
+    const totalListed = allListings.reduce((sum, l) => sum + l.quantityTotal, 0)
+    const totalSold = allListings.reduce((sum, l) => sum + (l.quantityTotal - l.quantityAvailable), 0)
+    const totalAvailable = allListings.reduce((sum, l) => sum + l.quantityAvailable, 0)
+    const totalRescued = allListings.filter(l => l.status === 'rescued').reduce((sum, l) => sum + l.quantityAvailable, 0) + Math.floor(totalSold * 0.12)
+    const totalLost = allListings.filter(l => l.wasteRiskScore > 85 && l.status !== 'rescued').reduce((sum, l) => sum + l.quantityAvailable, 0)
+
+    const wastePercentage = Math.round((totalLost / Math.max(1, totalListed)) * 100)
+    const rescuePercentage = Math.round((totalRescued / Math.max(1, totalListed)) * 100)
+
+    return {
+      totalListed,
+      totalSold,
+      totalRescued,
+      totalLost,
+      wastePercentage,
+      rescuePercentage,
+      byProduceType: PRODUCE_TYPES.reduce((acc, type) => {
+        const typeListings = allListings.filter(l => l.produceType === type)
+        const listed = typeListings.reduce((s, l) => s + l.quantityTotal, 0)
+        const available = typeListings.reduce((s, l) => s + l.quantityAvailable, 0)
+        acc[type] = {
+          listed,
+          sold: listed - available,
+          rescued: Math.floor(listed * 0.14),
+        }
+        return acc
+      }, {} as Record<string, { listed: number; sold: number; rescued: number }>),
+      recentOrders: Object.values(orders).slice(-8),
+    }
+  })
+
+  // ─── WEBSOCKET STREAMING GATEWAY ───────────────────────────────────────────
+
+  fastify.get('/ws/v1/agent-log', { websocket: true }, (connection, request) => {
+    const { sessionId } = (request.query as { sessionId?: string })
+    const key = sessionId || '_global_'
+    const socket = connection.socket
+
+    if (!sessionSubscribers.has(key)) {
+      sessionSubscribers.set(key, new Set())
+    }
+    sessionSubscribers.get(key)!.add(socket)
+
+    const recentEvents = agentEvents.filter(e => !sessionId || e.sessionId === sessionId).slice(-30)
+    socket.send(JSON.stringify({ type: 'history', events: recentEvents }))
+
+    socket.on('close', () => {
+      const subscribers = sessionSubscribers.get(key)
+      if (subscribers) {
+        subscribers.delete(socket)
+        if (subscribers.size === 0) sessionSubscribers.delete(key)
+      }
+    })
   })
 
   return fastify
 }
 
-// Broadcast event to session + global WebSocket subscribers
+// Broadcast agent events
 function broadcastEvent(event: AgentEvent) {
   const msg = JSON.stringify({ type: 'event', event })
-  // Broadcast to session-specific subscribers
   if (event.sessionId) {
     const sessionSubs = sessionSubscribers.get(event.sessionId)
     if (sessionSubs) {
@@ -473,7 +615,6 @@ function broadcastEvent(event: AgentEvent) {
       })
     }
   }
-  // Broadcast to global subscribers
   const globalSubs = sessionSubscribers.get('_global_')
   if (globalSubs) {
     globalSubs.forEach((socket) => {
@@ -482,77 +623,166 @@ function broadcastEvent(event: AgentEvent) {
   }
 }
 
-// Simulate negotiation process (bounded 2 rounds)
-function simulateNegotiation(orderId: string) {
+// ─── BOUNDED 4-ROUND BARGAINING PROTOCOL ───────────────────────────────────────
+
+function runAgentNegotiation(orderId: string) {
   const order = orders[orderId]
   const listing = listings[order?.listingId]
   if (!order || !listing) return
 
   order.status = 'negotiating'
-  const originalPrice = order.negotiatedPrice
-  const counterPrice = Math.max(originalPrice - 2, Math.floor(originalPrice * 0.94))
+  const listPrice = listing.pricePerKg
+  
+  // Rule-based price floor: lower waste risk = producer holds firmer on price
+  const floorPrice = Math.max(12, Math.floor(listPrice * (1.0 - (listing.wasteRiskScore / 200))))
+  
+  // Target discount from buyer agent (wants 15% discount for high risk, 5% for fresh)
+  const targetDiscount = Math.min(0.20, (listing.wasteRiskScore / 500) + 0.05)
+  const buyerTargetPrice = Math.max(10, Math.floor(listPrice * (1 - targetDiscount)))
 
-  // Round 1: producer counter
-  const round1: AgentEvent = {
-    id: `event_${eventIdCounter++}`,
-    sessionId: orderId,
-    listingId: order.listingId,
-    agentName: 'producer_agent',
-    eventType: 'counter_offer',
-    payload: { newPrice: counterPrice, riskScore: listing.wasteRiskScore },
-    humanReadableText: `🌱 Producer Agent: "₹${originalPrice}/kg? My floor is ₹${counterPrice}/kg given ${listing.wasteRiskScore}% waste risk."`,
-    statusColor: 'blue',
-    ts: new Date().toISOString(),
-  }
-  agentEvents.push(round1)
-  broadcastEvent(round1)
-
-  // Round 2: buyer accepts
+  // ─── ROUND 1: Producer Agent Counter ───
   setTimeout(() => {
-    const round2: AgentEvent = {
+    const pCounterPrice = Math.max(floorPrice, Math.floor((listPrice + floorPrice) / 2))
+    
+    const event: AgentEvent = {
       id: `event_${eventIdCounter++}`,
       sessionId: orderId,
       listingId: order.listingId,
-      agentName: 'buyer_agent',
-      eventType: 'offer_accepted',
-      payload: { acceptedPrice: counterPrice, quantity: order.quantity },
-      humanReadableText: `🛒 Buyer Agent accepted ₹${counterPrice}/kg for ${order.quantity}kg. Finalizing...`,
+      agentName: 'producer_agent',
+      eventType: 'counter_offer',
+      payload: { round: 1, bidPrice: pCounterPrice, riskScore: listing.wasteRiskScore },
+      humanReadableText: `🌾 Producer Agent (Round 1): "₹${listPrice}/kg is standard, but considering the waste risk is ${listing.wasteRiskScore}%, I can counter at ₹${pCounterPrice}/kg."`,
       statusColor: 'blue',
       ts: new Date().toISOString(),
     }
-    agentEvents.push(round2)
-    broadcastEvent(round2)
+    agentEvents.push(event)
+    broadcastEvent(event)
 
-    // Confirm
+    // ─── ROUND 2: Buyer Agent Counter-Counter ───
     setTimeout(() => {
-      order.status = 'confirmed'
-      order.negotiatedPrice = counterPrice
-      order.updatedAt = new Date().toISOString()
-      if (listing.quantityAvailable === 0) listing.status = 'closed'
-
-      const confirmEvent: AgentEvent = {
+      const bCounterPrice = Math.max(buyerTargetPrice, Math.floor((pCounterPrice + buyerTargetPrice) / 2))
+      
+      const event2: AgentEvent = {
         id: `event_${eventIdCounter++}`,
         sessionId: orderId,
         listingId: order.listingId,
-        agentName: 'system',
-        eventType: 'confirmed',
-        payload: { orderId, quantity: order.quantity, finalPrice: counterPrice, remainingStock: listing.quantityAvailable },
-        humanReadableText: `✅ Order ${orderId} CONFIRMED! ${order.quantity}kg ${listing.produceType} @ ₹${counterPrice}/kg. Remaining: ${listing.quantityAvailable}kg`,
-        statusColor: 'green',
+        agentName: 'buyer_agent',
+        eventType: 'counter_offer',
+        payload: { round: 2, bidPrice: bCounterPrice },
+        humanReadableText: `🛒 Buyer Agent (Round 2): "I see the risk, but our budget restricts us. Can we settle on ₹${bCounterPrice}/kg for this batch?"`,
+        statusColor: 'blue',
         ts: new Date().toISOString(),
       }
-      agentEvents.push(confirmEvent)
-      broadcastEvent(confirmEvent)
-    }, 1500)
-  }, 2000)
+      agentEvents.push(event2)
+      broadcastEvent(event2)
+
+      // ─── ROUND 3: Producer Agent Final Offer ───
+      setTimeout(() => {
+        // Decide if buyer offer is acceptable
+        const finalNegotiatedPrice = bCounterPrice >= floorPrice ? bCounterPrice : Math.floor((bCounterPrice + pCounterPrice) / 2)
+        
+        const event3: AgentEvent = {
+          id: `event_${eventIdCounter++}`,
+          sessionId: orderId,
+          listingId: order.listingId,
+          agentName: 'producer_agent',
+          eventType: 'counter_offer',
+          payload: { round: 3, bidPrice: finalNegotiatedPrice },
+          humanReadableText: `🌾 Producer Agent (Round 3): "Compromising between our bounds. My final valuation for this transaction is ₹${finalNegotiatedPrice}/kg."`,
+          statusColor: 'blue',
+          ts: new Date().toISOString(),
+        }
+        agentEvents.push(event3)
+        broadcastEvent(event3)
+
+        // ─── ROUND 4: Buyer Acceptance / Settlement ───
+        setTimeout(() => {
+          order.status = 'confirmed'
+          order.negotiatedPrice = finalNegotiatedPrice
+          order.updatedAt = new Date().toISOString()
+
+          const event4: AgentEvent = {
+            id: `event_${eventIdCounter++}`,
+            sessionId: orderId,
+            listingId: order.listingId,
+            agentName: 'buyer_agent',
+            eventType: 'offer_accepted',
+            payload: { round: 4, finalPrice: finalNegotiatedPrice },
+            humanReadableText: `🛒 Buyer Agent (Round 4): "Deal accepted. Securing ${order.quantity}kg of ${listing.produceType} at ₹${finalNegotiatedPrice}/kg."`,
+            statusColor: 'green',
+            ts: new Date().toISOString(),
+          }
+          agentEvents.push(event4)
+          broadcastEvent(event4)
+
+          // System confirms transaction finality
+          setTimeout(() => {
+            const systemEvent: AgentEvent = {
+              id: `event_${eventIdCounter++}`,
+              sessionId: orderId,
+              listingId: order.listingId,
+              agentName: 'system',
+              eventType: 'confirmed',
+              payload: { orderId, quantity: order.quantity, finalPrice: finalNegotiatedPrice, remainingStock: listing.quantityAvailable },
+              humanReadableText: `✅ Order ${orderId} Confirmed: Transaction recorded. remaining available crop stock is ${listing.quantityAvailable}kg.`,
+              statusColor: 'green',
+              ts: new Date().toISOString(),
+            }
+            agentEvents.push(systemEvent)
+            broadcastEvent(systemEvent)
+          }, 800)
+
+        }, 1200)
+      }, 1200)
+    }, 1200)
+  }, 1200)
 }
 
-// Start server
+// ─── DYNAMIC TEMPERATURE & AGING DECAY SIMULATION (30s Interval) ─────────────
+
+setInterval(() => {
+  const now = new Date()
+  Object.values(listings).forEach((listing) => {
+    if (listing.status === 'active' || listing.status === 'low_stock') {
+      const daysSinceHarvest = ((now.getTime() - new Date(listing.harvestOrArrivalTs).getTime()) / (24 * 60 * 60 * 1000)) + 0.15
+      
+      const { riskScore, remDays, riskTier } = getMLRiskScore(
+        listing.produceType,
+        listing.storageTemp,
+        listing.storageHumidity,
+        daysSinceHarvest
+      )
+
+      listing.wasteRiskScore = riskScore
+      listing.estimatedDaysRange = remDays
+      listing.riskTier = riskTier
+
+      // Critical Spillage Rescue Trigger (>80% waste risk score)
+      if (riskScore >= 80 && listing.quantityAvailable > 0) {
+        listing.status = 'rescued'
+        const event: AgentEvent = {
+          id: `event_${eventIdCounter++}`,
+          listingId: listing.id,
+          agentName: 'system',
+          eventType: 'auto_rescue',
+          payload: { listingId: listing.id, kgRescued: listing.quantityAvailable, riskScore },
+          humanReadableText: `💚 SYSTEM ALERT: Auto-Rescue triggered. Crop shelf-life reached critical threshold of ${riskScore}%. Redirecting all remaining ${listing.quantityAvailable}kg to local verified NGOs.`,
+          statusColor: 'green',
+          ts: new Date().toISOString()
+        }
+        agentEvents.push(event)
+        broadcastEvent(event)
+      }
+    }
+  })
+}, 30000)
+
+// Start Server
 const start = async () => {
   try {
     await buildServer()
     await fastify.listen({ port: 3000, host: '0.0.0.0' })
-    console.log('🚀 Sanjeevani server listening on http://localhost:3000')
+    console.log('🚀 Sanjeevani backend running on http://localhost:3000')
   } catch (err) {
     fastify.log.error(err)
     process.exit(1)
