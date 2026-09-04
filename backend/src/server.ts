@@ -624,7 +624,12 @@ function broadcastEvent(event: AgentEvent) {
 }
 
 // ─── BOUNDED 4-ROUND BARGAINING PROTOCOL ───────────────────────────────────────
-
+// This function simulates a multi-turn negotiation session between the Producer-side Agent
+// and the Buyer-side Agent. The negotiation is bounded to a maximum of 4 rounds:
+// - Round 1: Producer Agent proposes a counter-price based on its floor calculation.
+// - Round 2: Buyer Agent makes a counter-counter offer within its target budget boundaries.
+// - Round 3: Producer Agent evaluates the counter-counter offer and suggests a final compromise.
+// - Round 4: Buyer Agent accepts the final compromise price and confirms the transaction.
 function runAgentNegotiation(orderId: string) {
   const order = orders[orderId]
   const listing = listings[order?.listingId]
