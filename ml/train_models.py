@@ -19,8 +19,16 @@ PRODUCE_SPECS = {
     'Cabbage': {'opt_temp': 2, 'opt_hum': 95, 'base_shelf': 14, 'price_range': (12, 22)},
     'Carrot': {'opt_temp': 2, 'opt_hum': 95, 'base_shelf': 21, 'price_range': (25, 45)},
     'Banana': {'opt_temp': 14, 'opt_hum': 85, 'base_shelf': 6, 'price_range': (25, 40)},
-    'Mango': {'opt_temp': 13, 'opt_hum': 88, 'base_shelf': 8, 'price_range': (50, 120)}
+    'Mango': {'opt_temp': 13, 'opt_hum': 88, 'base_shelf': 8, 'price_range': (50, 120)},
+    'Apple': {'opt_temp': 1, 'opt_hum': 90, 'base_shelf': 90, 'price_range': (80, 140)},
+    'Orange': {'opt_temp': 4, 'opt_hum': 85, 'base_shelf': 21, 'price_range': (40, 75)},
+    'Spinach': {'opt_temp': 0, 'opt_hum': 95, 'base_shelf': 4, 'price_range': (15, 30)},
+    'Cauliflower': {'opt_temp': 0, 'opt_hum': 95, 'base_shelf': 14, 'price_range': (20, 35)},
+    'Grapes': {'opt_temp': 1, 'opt_hum': 90, 'base_shelf': 14, 'price_range': (60, 110)},
+    'Guava': {'opt_temp': 8, 'opt_hum': 90, 'base_shelf': 10, 'price_range': (30, 55)},
+    'Brinjal': {'opt_temp': 12, 'opt_hum': 90, 'base_shelf': 7, 'price_range': (15, 25)}
 }
+
 
 # 1. Generate Shelf-Life & Waste-Risk Dataset (M3)
 print("Step 2: Training Shelf-Life & Waste-Risk Model...")

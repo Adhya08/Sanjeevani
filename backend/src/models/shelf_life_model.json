@@ -6,70 +6,187 @@
     "Cabbage": 3,
     "Carrot": 4,
     "Banana": 5,
-    "Mango": 6
+    "Mango": 6,
+    "Apple": 7,
+    "Orange": 8,
+    "Spinach": 9,
+    "Cauliflower": 10,
+    "Grapes": 11,
+    "Guava": 12,
+    "Brinjal": 13
   },
   "risk_tree": {
     "feature": "days_since_harvest",
-    "threshold": 1.855367124080658,
+    "threshold": 1.4797292351722717,
     "left": {
       "feature": "days_since_harvest",
-      "threshold": 0.9721902310848236,
+      "threshold": 0.744665265083313,
       "left": {
         "feature": "days_since_harvest",
-        "threshold": 0.49102622270584106,
+        "threshold": 0.3045292943716049,
         "left": {
           "feature": "days_since_harvest",
-          "threshold": 0.26528844237327576,
+          "threshold": 0.20185383409261703,
           "left": {
             "feature": "days_since_harvest",
-            "threshold": 0.15796779096126556,
+            "threshold": 0.07174166664481163,
             "left": {
               "feature": "days_since_harvest",
-              "threshold": 0.08032887801527977,
-              "left": 1.6644369818854747,
-              "right": 4.721199910871375
+              "threshold": 0.04191332869231701,
+              "left": 1.0301066435737782,
+              "right": 2.7386801096505455
             },
             "right": {
               "feature": "temp",
-              "threshold": 25.71439266204834,
-              "left": 6.776612860891709,
-              "right": 11.55024081460578
+              "threshold": 20.630577087402344,
+              "left": 4.239268873781082,
+              "right": 8.728852834046718
             }
           },
           "right": {
-            "feature": "hum",
-            "threshold": 73.91291046142578,
+            "feature": "temp",
+            "threshold": 34.429555892944336,
             "left": {
               "feature": "temp",
-              "threshold": 18.984868049621582,
-              "left": 15.288850440902104,
-              "right": 20.894487427938895
+              "threshold": 19.394283294677734,
+              "left": 8.733751153610385,
+              "right": 17.600955399388766
             },
-            "right": {
-              "feature": "temp",
-              "threshold": 19.935537338256836,
-              "left": 9.415556986151383,
-              "right": 15.397134703779301
-            }
+            "right": 56.269901145894174
           }
         },
         "right": {
           "feature": "temp",
-          "threshold": 21.088120460510254,
+          "threshold": 24.604226112365723,
           "left": {
-            "feature": "hum",
-            "threshold": 66.65726470947266,
+            "feature": "days_since_harvest",
+            "threshold": 0.4785618931055069,
             "left": {
-              "feature": "days_since_harvest",
-              "threshold": 0.8026118278503418,
-              "left": 25.776507490986678,
-              "right": 40.85344409464027
+              "feature": "hum",
+              "threshold": 51.49502182006836,
+              "left": 40.17306364685104,
+              "right": 14.614488132889898
             },
             "right": {
+              "feature": "produce_enc",
+              "threshold": 9.5,
+              "left": 29.632314998967296,
+              "right": 18.29402837814079
+            }
+          },
+          "right": {
+            "feature": "produce_enc",
+            "threshold": 8.5,
+            "left": {
               "feature": "days_since_harvest",
-              "threshold": 0.6315689980983734,
-              "left": 15.809070933472789,
-              "right": 22.930301795609594
+              "threshold": 0.6518931090831757,
+              "left": 22.203036873437018,
+              "right": 41.09412222981714
+            },
+            "right": {
+              "feature": "produce_enc",
+              "threshold": 9.5,
+              "left": 71.75455532599011,
+              "right": 28.692295038081166
+            }
+          }
+        }
+      },
+      "right": {
+        "feature": "temp",
+        "threshold": 18.710155487060547,
+        "left": {
+          "feature": "hum",
+          "threshold": 62.50846862792969,
+          "left": {
+            "feature": "produce_enc",
+            "threshold": 4.5,
+            "left": {
+              "feature": "produce_enc",
+              "threshold": 0.5,
+              "left": 58.55191944957803,
+              "right": 24.408258076008256
+            },
+            "right": {
+              "feature": "produce_enc",
+              "threshold": 9.5,
+              "left": 75.16017886522843,
+              "right": 43.60829518361724
+            }
+          },
+          "right": {
+            "feature": "produce_enc",
+            "threshold": 8.5,
+            "left": {
+              "feature": "days_since_harvest",
+              "threshold": 1.049290657043457,
+              "left": 22.79784801732973,
+              "right": 38.03343937469207
+            },
+            "right": {
+              "feature": "produce_enc",
+              "threshold": 9.5,
+              "left": 78.9645676683575,
+              "right": 28.71057902162545
+            }
+          }
+        },
+        "right": {
+          "feature": "produce_enc",
+          "threshold": 8.5,
+          "left": {
+            "feature": "produce_enc",
+            "threshold": 6.5,
+            "left": {
+              "feature": "days_since_harvest",
+              "threshold": 1.1710482239723206,
+              "left": 47.407950632723654,
+              "right": 65.17819305261733
+            },
+            "right": {
+              "feature": "produce_enc",
+              "threshold": 7.5,
+              "left": 6.5104327527873735,
+              "right": 27.17982656760352
+            }
+          },
+          "right": {
+            "feature": "produce_enc",
+            "threshold": 9.5,
+            "left": 100.0,
+            "right": {
+              "feature": "days_since_harvest",
+              "threshold": 1.2146783471107483,
+              "left": 46.58418348449535,
+              "right": 65.00388588940608
+            }
+          }
+        }
+      }
+    },
+    "right": {
+      "feature": "days_since_harvest",
+      "threshold": 2.955055832862854,
+      "left": {
+        "feature": "temp",
+        "threshold": 17.270544052124023,
+        "left": {
+          "feature": "hum",
+          "threshold": 79.66809463500977,
+          "left": {
+            "feature": "produce_enc",
+            "threshold": 4.5,
+            "left": {
+              "feature": "produce_enc",
+              "threshold": 0.5,
+              "left": 88.75960819897213,
+              "right": 44.1249821273631
+            },
+            "right": {
+              "feature": "produce_enc",
+              "threshold": 9.5,
+              "left": 85.4670947777527,
+              "right": 70.60921527671951
             }
           },
           "right": {
@@ -78,177 +195,52 @@
             "left": {
               "feature": "produce_enc",
               "threshold": 0.5,
-              "left": 42.48213755583004,
-              "right": 18.682635673130285
-            },
-            "right": {
-              "feature": "days_since_harvest",
-              "threshold": 0.7587547302246094,
-              "left": 36.14474074311643,
-              "right": 50.47959250172684
-            }
-          }
-        }
-      },
-      "right": {
-        "feature": "temp",
-        "threshold": 22.99423122406006,
-        "left": {
-          "feature": "produce_enc",
-          "threshold": 4.5,
-          "left": {
-            "feature": "produce_enc",
-            "threshold": 0.5,
-            "left": {
-              "feature": "hum",
-              "threshold": 74.5989761352539,
-              "left": 58.74527796441471,
-              "right": 37.48687340996164
+              "left": 66.83815054655607,
+              "right": 33.61487725200186
             },
             "right": {
               "feature": "produce_enc",
-              "threshold": 2.5,
-              "left": 12.712908558562207,
-              "right": 31.12623766370617
-            }
-          },
-          "right": {
-            "feature": "hum",
-            "threshold": 70.46764373779297,
-            "left": {
-              "feature": "days_since_harvest",
-              "threshold": 1.1499347686767578,
-              "left": 49.831267184957476,
-              "right": 76.33630337163787
-            },
-            "right": {
-              "feature": "temp",
-              "threshold": 8.445765495300293,
-              "left": 57.808997013633935,
-              "right": 40.837583855503354
+              "threshold": 9.5,
+              "left": 72.91930532520912,
+              "right": 49.735151624110095
             }
           }
         },
         "right": {
           "feature": "produce_enc",
-          "threshold": 4.5,
+          "threshold": 8.5,
           "left": {
             "feature": "produce_enc",
-            "threshold": 0.5,
+            "threshold": 6.5,
             "left": {
-              "feature": "days_since_harvest",
-              "threshold": 1.2599456310272217,
-              "left": 61.581322570328815,
-              "right": 85.75322887800999
+              "feature": "produce_enc",
+              "threshold": 4.5,
+              "left": 75.68094838712393,
+              "right": 92.00494977506011
             },
             "right": {
               "feature": "produce_enc",
-              "threshold": 2.5,
-              "left": 22.651584666760243,
-              "right": 53.21910121290801
-            }
-          },
-          "right": {
-            "feature": "days_since_harvest",
-            "threshold": 1.1799137592315674,
-            "left": {
-              "feature": "temp",
-              "threshold": 28.43957805633545,
-              "left": 48.963213288018984,
-              "right": 68.09266753564006
-            },
-            "right": {
-              "feature": "temp",
-              "threshold": 27.66408634185791,
-              "left": 73.63376143616958,
-              "right": 92.39547054954518
-            }
-          }
-        }
-      }
-    },
-    "right": {
-      "feature": "days_since_harvest",
-      "threshold": 3.653948426246643,
-      "left": {
-        "feature": "produce_enc",
-        "threshold": 4.5,
-        "left": {
-          "feature": "produce_enc",
-          "threshold": 0.5,
-          "left": {
-            "feature": "hum",
-            "threshold": 83.3526382446289,
-            "left": {
-              "feature": "days_since_harvest",
-              "threshold": 2.2762932777404785,
-              "left": 88.77530569630676,
-              "right": 98.66401474549814
-            },
-            "right": {
-              "feature": "temp",
-              "threshold": 19.96794605255127,
-              "left": 71.38402854055049,
-              "right": 95.6252758198822
+              "threshold": 7.5,
+              "left": 11.125489558808644,
+              "right": 56.08295630411009
             }
           },
           "right": {
             "feature": "produce_enc",
-            "threshold": 2.5,
-            "left": {
-              "feature": "temp",
-              "threshold": 21.1270170211792,
-              "left": 22.546890505790696,
-              "right": 43.92128469332937
-            },
+            "threshold": 9.5,
+            "left": 100.0,
             "right": {
-              "feature": "temp",
-              "threshold": 14.506330490112305,
-              "left": 46.68666945438421,
-              "right": 81.03539812818236
-            }
-          }
-        },
-        "right": {
-          "feature": "temp",
-          "threshold": 18.447189331054688,
-          "left": {
-            "feature": "hum",
-            "threshold": 79.61754608154297,
-            "left": {
               "feature": "days_since_harvest",
-              "threshold": 2.7232751846313477,
-              "left": 88.38216655383401,
-              "right": 98.72359786399036
-            },
-            "right": {
-              "feature": "temp",
-              "threshold": 9.164714813232422,
-              "left": 91.20284335007523,
-              "right": 65.11312644082922
-            }
-          },
-          "right": {
-            "feature": "days_since_harvest",
-            "threshold": 2.1414507627487183,
-            "left": {
-              "feature": "temp",
-              "threshold": 23.172104835510254,
-              "left": 75.98124180646714,
-              "right": 96.80519111463764
-            },
-            "right": {
-              "feature": "temp",
-              "threshold": 21.67635440826416,
-              "left": 96.91066279024187,
-              "right": 99.8892260611048
+              "threshold": 1.7614333629608154,
+              "left": 74.05241209811713,
+              "right": 93.80918348209282
             }
           }
         }
       },
       "right": {
         "feature": "days_since_harvest",
-        "threshold": 6.534689426422119,
+        "threshold": 4.839750528335571,
         "left": {
           "feature": "produce_enc",
           "threshold": 4.5,
@@ -256,68 +248,68 @@
             "feature": "produce_enc",
             "threshold": 0.5,
             "left": {
-              "feature": "days_since_harvest",
-              "threshold": 4.271153688430786,
-              "left": 99.03422546614321,
-              "right": 99.94434921381566
+              "feature": "hum",
+              "threshold": 98.31394958496094,
+              "left": 98.9897630132991,
+              "right": 82.63915992673408
             },
             "right": {
               "feature": "produce_enc",
               "threshold": 2.5,
-              "left": 53.64148379621667,
-              "right": 91.22815391770693
+              "left": 42.55178751983005,
+              "right": 79.16519511187148
             }
           },
           "right": {
-            "feature": "hum",
-            "threshold": 83.99859237670898,
+            "feature": "temp",
+            "threshold": 17.632250785827637,
             "left": {
               "feature": "hum",
-              "threshold": 78.68793106079102,
-              "left": 99.97042253739004,
-              "right": 99.35278188961735
+              "threshold": 80.76172637939453,
+              "left": 94.2710433275776,
+              "right": 84.31734080841855
             },
             "right": {
-              "feature": "temp",
-              "threshold": 15.91426706314087,
-              "left": 96.65099914256905,
-              "right": 99.88809785737728
+              "feature": "hum",
+              "threshold": 51.112789154052734,
+              "left": 88.35497619159374,
+              "right": 99.03406167361914
             }
           }
         },
         "right": {
           "feature": "temp",
-          "threshold": 12.570869445800781,
+          "threshold": 9.120645523071289,
           "left": {
             "feature": "days_since_harvest",
-            "threshold": 17.019274711608887,
+            "threshold": 8.074402809143066,
             "left": {
               "feature": "produce_enc",
-              "threshold": 2.5,
-              "left": 86.50687682871691,
-              "right": 98.80217895309247
+              "threshold": 4.5,
+              "left": 82.39437079076559,
+              "right": 94.03515550248694
             },
             "right": {
-              "feature": "days_since_harvest",
-              "threshold": 23.48402214050293,
-              "left": 98.53909757741688,
-              "right": 99.80253259012511
+              "feature": "produce_enc",
+              "threshold": 7.5,
+              "left": 95.04837084079902,
+              "right": 99.24062808500106
             }
           },
           "right": {
-            "feature": "days_since_harvest",
-            "threshold": 7.7979700565338135,
+            "feature": "temp",
+            "threshold": 17.307316780090332,
             "left": {
-              "feature": "produce_enc",
-              "threshold": 2.5,
-              "left": 94.7246410539122,
-              "right": 99.96096133566587
+              "feature": "days_since_harvest",
+              "threshold": 14.456023216247559,
+              "left": 97.23041872546331,
+              "right": 99.6060166754876
             },
             "right": {
-              "feature": "temp",
-              "threshold": 17.392240524291992,
-              "left": 99.2861755991198,
-              "right": 99.94737755852849
+              "feature": "days_since_harvest",
+              "threshold": 10.53130054473877,
+              "left": 99.14754999077779,
+              "right": 99.89747104782539
             }
           }
         }
@@ -325,315 +317,315 @@
     }
   },
   "rem_days_tree": {
-    "feature": "produce_enc",
-    "threshold": 4.5,
+    "feature": "days_since_harvest",
+    "threshold": 31.49063777923584,
     "left": {
       "feature": "produce_enc",
-      "threshold": 0.5,
+      "threshold": 8.5,
       "left": {
-        "feature": "days_since_harvest",
-        "threshold": 5.786710500717163,
+        "feature": "produce_enc",
+        "threshold": 6.5,
         "left": {
-          "feature": "days_since_harvest",
-          "threshold": 2.6508610248565674,
+          "feature": "produce_enc",
+          "threshold": 4.5,
           "left": {
-            "feature": "days_since_harvest",
-            "threshold": 1.4230107069015503,
+            "feature": "produce_enc",
+            "threshold": 0.5,
             "left": {
               "feature": "days_since_harvest",
-              "threshold": 0.7406846582889557,
-              "left": 6.873535500852558,
-              "right": 6.616662057910495
+              "threshold": 4.962815523147583,
+              "left": 6.148562434221209,
+              "right": 4.308522087747941
             },
             "right": {
-              "feature": "temp",
-              "threshold": 18.81546115875244,
-              "left": 6.079604983227134,
-              "right": 6.457826114284937
+              "feature": "produce_enc",
+              "threshold": 2.5,
+              "left": 30.832928443801894,
+              "right": 13.654245223739236
             }
           },
           "right": {
-            "feature": "temp",
-            "threshold": 17.205357551574707,
+            "feature": "days_since_harvest",
+            "threshold": 5.343236446380615,
             "left": {
-              "feature": "hum",
-              "threshold": 83.20965576171875,
-              "left": 5.5041734179346875,
-              "right": 4.772666434307294
+              "feature": "produce_enc",
+              "threshold": 5.5,
+              "left": 5.066886844972683,
+              "right": 7.049263233297715
             },
             "right": {
-              "feature": "days_since_harvest",
-              "threshold": 4.428128004074097,
-              "left": 6.018542065843508,
-              "right": 5.582858309588573
+              "feature": "produce_enc",
+              "threshold": 5.5,
+              "left": 3.3139682593188575,
+              "right": 4.802059593827973
             }
           }
         },
         "right": {
-          "feature": "temp",
-          "threshold": 19.48823642730713,
+          "feature": "produce_enc",
+          "threshold": 7.5,
           "left": {
-            "feature": "hum",
-            "threshold": 78.54131698608398,
+            "feature": "days_since_harvest",
+            "threshold": 17.55875301361084,
             "left": {
               "feature": "days_since_harvest",
-              "threshold": 8.213164806365967,
-              "left": 4.6065428711626755,
-              "right": 3.6959774588339394
+              "threshold": 8.959756851196289,
+              "left": 88.63848596388671,
+              "right": 86.21231730297333
             },
             "right": {
               "feature": "temp",
-              "threshold": 6.7927775382995605,
-              "left": 3.8167627216720588,
-              "right": 2.1327207904654957
+              "threshold": 14.200318336486816,
+              "left": 80.61810507413865,
+              "right": 85.3487647742885
             }
           },
           "right": {
             "feature": "days_since_harvest",
-            "threshold": 8.598403930664062,
+            "threshold": 17.16377544403076,
             "left": {
-              "feature": "temp",
-              "threshold": 24.813776969909668,
-              "left": 4.819666490056353,
-              "right": 5.361601599370562
+              "feature": "days_since_harvest",
+              "threshold": 8.771666526794434,
+              "left": 19.63402552609739,
+              "right": 16.76006123975735
             },
             "right": {
               "feature": "temp",
-              "threshold": 25.246898651123047,
-              "left": 4.012406654090484,
-              "right": 4.842762160565958
+              "threshold": 12.22558307647705,
+              "left": 8.656148131945786,
+              "right": 15.481189458266291
             }
           }
         }
       },
       "right": {
         "feature": "produce_enc",
-        "threshold": 2.5,
+        "threshold": 9.5,
         "left": {
-          "feature": "produce_enc",
-          "threshold": 1.5,
+          "feature": "days_since_harvest",
+          "threshold": 3.1728464365005493,
           "left": {
             "feature": "days_since_harvest",
-            "threshold": 25.06228256225586,
+            "threshold": 1.6818339228630066,
             "left": {
               "feature": "days_since_harvest",
-              "threshold": 11.123890399932861,
-              "left": 28.130826447060215,
-              "right": 24.388496728489756
+              "threshold": 0.9017174243927002,
+              "left": 3.8866993692243224,
+              "right": 3.6885475804583567
             },
             "right": {
               "feature": "temp",
-              "threshold": 14.744444370269775,
-              "left": 15.302770284417232,
-              "right": 22.358556945415096
+              "threshold": 7.179287672042847,
+              "left": 3.0208146162684155,
+              "right": 3.49841690900432
             }
           },
           "right": {
-            "feature": "days_since_harvest",
-            "threshold": 35.64676284790039,
+            "feature": "temp",
+            "threshold": 6.949770927429199,
             "left": {
-              "feature": "days_since_harvest",
-              "threshold": 18.894768714904785,
-              "left": 42.30214409195729,
-              "right": 36.459143078715215
+              "feature": "hum",
+              "threshold": 73.46912384033203,
+              "left": 2.500498028307665,
+              "right": 1.4775619238654487
             },
             "right": {
               "feature": "temp",
-              "threshold": 11.318314552307129,
-              "left": 18.87367068442801,
-              "right": 32.95725601157361
+              "threshold": 13.373391151428223,
+              "left": 2.7017973230468972,
+              "right": 3.1704133544241753
             }
           }
         },
         "right": {
           "feature": "produce_enc",
-          "threshold": 3.5,
+          "threshold": 11.5,
           "left": {
             "feature": "days_since_harvest",
-            "threshold": 9.706755638122559,
+            "threshold": 10.141988754272461,
             "left": {
               "feature": "days_since_harvest",
-              "threshold": 5.683043479919434,
-              "left": 13.240291906011635,
-              "right": 11.87577460662725
+              "threshold": 4.584339618682861,
+              "left": 13.42595345546344,
+              "right": 12.119117090708574
             },
             "right": {
               "feature": "temp",
-              "threshold": 10.834721088409424,
-              "left": 7.572331050857246,
-              "right": 10.747073789469404
+              "threshold": 6.633797883987427,
+              "left": 6.8331779566656925,
+              "right": 10.617301770550974
             }
           },
           "right": {
-            "feature": "days_since_harvest",
-            "threshold": 14.920868873596191,
+            "feature": "produce_enc",
+            "threshold": 12.5,
             "left": {
               "feature": "days_since_harvest",
-              "threshold": 6.2099854946136475,
-              "left": 20.178614668272356,
-              "right": 18.26292569520981
+              "threshold": 7.171932935714722,
+              "left": 8.871260590075789,
+              "right": 6.301070047329403
             },
             "right": {
-              "feature": "temp",
-              "threshold": 10.14953327178955,
-              "left": 11.067767253757237,
-              "right": 16.072195806179725
+              "feature": "days_since_harvest",
+              "threshold": 5.700833082199097,
+              "left": 6.006922947799943,
+              "right": 4.181730434064333
             }
           }
         }
       }
     },
     "right": {
-      "feature": "days_since_harvest",
-      "threshold": 4.752518892288208,
+      "feature": "produce_enc",
+      "threshold": 4.5,
       "left": {
-        "feature": "produce_enc",
-        "threshold": 5.5,
+        "feature": "temp",
+        "threshold": 13.821998596191406,
         "left": {
-          "feature": "days_since_harvest",
-          "threshold": 2.374269962310791,
+          "feature": "produce_enc",
+          "threshold": 1.5,
           "left": {
-            "feature": "days_since_harvest",
-            "threshold": 1.3542112112045288,
+            "feature": "hum",
+            "threshold": 71.73775100708008,
             "left": {
-              "feature": "days_since_harvest",
-              "threshold": 0.5365575551986694,
-              "left": 5.893914141818201,
-              "right": 5.670356294425697
+              "feature": "hum",
+              "threshold": 60.963823318481445,
+              "left": 19.58603674832023,
+              "right": 17.010489196487374
             },
             "right": {
-              "feature": "temp",
-              "threshold": 21.075411796569824,
-              "left": 5.2350945301213425,
-              "right": 5.493943827044168
+              "feature": "hum",
+              "threshold": 88.51567840576172,
+              "left": 12.05099527828033,
+              "right": 6.2078803873952255
             }
           },
           "right": {
             "feature": "temp",
-            "threshold": 24.660720825195312,
+            "threshold": 6.9466941356658936,
             "left": {
               "feature": "days_since_harvest",
-              "threshold": 3.202957034111023,
-              "left": 4.892502775977462,
-              "right": 4.384505071511072
+              "threshold": 58.418752670288086,
+              "left": 20.20061537851916,
+              "right": 8.659017059595147
             },
             "right": {
               "feature": "days_since_harvest",
-              "threshold": 3.523157000541687,
-              "left": 5.26001654215987,
-              "right": 4.944065235011909
+              "threshold": 53.276784896850586,
+              "left": 28.083822799577533,
+              "right": 21.388344930998613
             }
           }
         },
         "right": {
-          "feature": "days_since_harvest",
-          "threshold": 2.3389997482299805,
+          "feature": "produce_enc",
+          "threshold": 1.5,
           "left": {
-            "feature": "days_since_harvest",
-            "threshold": 1.0244210362434387,
+            "feature": "temp",
+            "threshold": 22.266310691833496,
             "left": {
-              "feature": "days_since_harvest",
-              "threshold": 0.5391975343227386,
-              "left": 7.912581064496143,
-              "right": 7.730850654579283
+              "feature": "hum",
+              "threshold": 75.44604110717773,
+              "left": 20.770295097851836,
+              "right": 17.50880895631877
             },
             "right": {
-              "feature": "temp",
-              "threshold": 19.11499309539795,
-              "left": 7.287647357948187,
-              "right": 7.543475215691846
+              "feature": "days_since_harvest",
+              "threshold": 39.96436882019043,
+              "left": 23.454901078894874,
+              "right": 21.62501223101355
             }
           },
           "right": {
             "feature": "temp",
-            "threshold": 19.2630672454834,
+            "threshold": 19.18091106414795,
             "left": {
-              "feature": "hum",
-              "threshold": 78.27302932739258,
-              "left": 6.787763420622072,
-              "right": 6.161273022668159
+              "feature": "days_since_harvest",
+              "threshold": 47.048072814941406,
+              "left": 33.752797534335,
+              "right": 27.919073102345383
             },
             "right": {
               "feature": "days_since_harvest",
-              "threshold": 3.532294273376465,
-              "left": 7.193819932755279,
-              "right": 6.912481998162161
+              "threshold": 48.14672660827637,
+              "left": 37.162275715809415,
+              "right": 33.75788084801238
             }
           }
         }
       },
       "right": {
-        "feature": "produce_enc",
-        "threshold": 5.5,
+        "feature": "temp",
+        "threshold": 5.3786516189575195,
         "left": {
-          "feature": "temp",
-          "threshold": 22.300495147705078,
+          "feature": "days_since_harvest",
+          "threshold": 76.99436950683594,
           "left": {
-            "feature": "temp",
-            "threshold": 7.796985626220703,
+            "feature": "days_since_harvest",
+            "threshold": 52.020774841308594,
             "left": {
-              "feature": "days_since_harvest",
-              "threshold": 6.773491621017456,
-              "left": 4.197691253896284,
-              "right": 3.531550213621017
+              "feature": "hum",
+              "threshold": 78.20357131958008,
+              "left": 74.92260733944747,
+              "right": 63.23018014620235
             },
             "right": {
               "feature": "hum",
-              "threshold": 70.9010238647461,
-              "left": 3.4631350670774292,
-              "right": 2.2253193536467095
+              "threshold": 78.25239944458008,
+              "left": 62.84992727820592,
+              "right": 44.982260431578844
             }
           },
           "right": {
-            "feature": "days_since_harvest",
-            "threshold": 7.5562193393707275,
+            "feature": "hum",
+            "threshold": 73.15922546386719,
             "left": {
-              "feature": "temp",
-              "threshold": 26.39815330505371,
-              "left": 4.120414718340708,
-              "right": 4.529019836980524
+              "feature": "days_since_harvest",
+              "threshold": 123.48265075683594,
+              "left": 54.346041273617054,
+              "right": 42.09688812282153
             },
             "right": {
-              "feature": "hum",
-              "threshold": 79.62755584716797,
-              "left": 3.8657130905720667,
-              "right": 3.4288611755166176
+              "feature": "days_since_harvest",
+              "threshold": 113.32472229003906,
+              "left": 25.292776909372574,
+              "right": 11.153385704772617
             }
           }
         },
         "right": {
-          "feature": "temp",
-          "threshold": 20.9161958694458,
+          "feature": "days_since_harvest",
+          "threshold": 87.31332015991211,
           "left": {
-            "feature": "days_since_harvest",
-            "threshold": 7.629516124725342,
+            "feature": "temp",
+            "threshold": 10.71242380142212,
             "left": {
               "feature": "hum",
-              "threshold": 75.11854553222656,
-              "left": 5.917657743820442,
-              "right": 4.883764510713366
+              "threshold": 65.7313003540039,
+              "left": 74.19781434336434,
+              "right": 63.868352066951125
             },
             "right": {
-              "feature": "hum",
-              "threshold": 72.95897674560547,
-              "left": 4.716654572383899,
-              "right": 3.164969860211599
+              "feature": "days_since_harvest",
+              "threshold": 59.92779350280762,
+              "left": 81.288944835875,
+              "right": 75.00752716279077
             }
           },
           "right": {
-            "feature": "days_since_harvest",
-            "threshold": 8.061266899108887,
+            "feature": "temp",
+            "threshold": 16.434476852416992,
             "left": {
-              "feature": "temp",
-              "threshold": 23.595633506774902,
-              "left": 5.866888207656405,
-              "right": 6.4801966469848935
+              "feature": "hum",
+              "threshold": 72.90483856201172,
+              "left": 61.58336410133585,
+              "right": 48.1843391764813
             },
             "right": {
               "feature": "temp",
-              "threshold": 26.24127197265625,
-              "left": 4.967883784893943,
-              "right": 5.675203830721726
+              "threshold": 23.48127841949463,
+              "left": 65.84432403138099,
+              "right": 71.53703528347737
             }
           }
         }
