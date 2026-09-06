@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { ActivityLog } from '../../components/log-console/ActivityLog'
 import { api, Listing } from '../../services/api'
 
@@ -85,12 +86,12 @@ export const ProducerDashboard: React.FC = () => {
             >
               + List New Produce
             </button>
-            <a
-              href="/"
+            <Link
+              to="/"
               className="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl text-slate-200 font-bold transition-all"
             >
               ← Home
-            </a>
+            </Link>
           </div>
         </div>
       </header>
@@ -128,12 +129,12 @@ export const ProducerDashboard: React.FC = () => {
             >
               🌱 Add New Crop Listing
             </button>
-            <a
-              href="/listings"
+            <Link
+              to="/listings"
               className="block text-center w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-bold py-3 rounded-xl text-sm transition-all"
             >
               📋 Detailed Management View
-            </a>
+            </Link>
           </div>
         </div>
 
