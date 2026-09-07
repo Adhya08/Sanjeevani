@@ -104,15 +104,41 @@ let demandModel: {
 
 function loadMLModels() {
   try {
-    const shelfLifePath = path.join(__dirname, 'models', 'shelf_life_model.json')
-    const demandPath = path.join(__dirname, 'models', 'demand_model.json')
-    if (fs.existsSync(shelfLifePath)) {
-      shelfLifeModel = JSON.parse(fs.readFileSync(shelfLifePath, 'utf-8'))
-      console.log('Successfully loaded Shelf-Life model parameters.')
+    const candidateDirs = [
+      path.join(__dirname, 'models'),
+      path.join(__dirname, '..', 'src', 'models'),
+      path.join(__dirname, '..', 'models'),
+      path.join(process.cwd(), 'backend', 'src', 'models'),
+      path.join(process.cwd(), 'src', 'models'),
+      path.join(process.cwd(), 'models')
+    ]
+
+    let shelfLifePath = ''
+    let demandPath = ''
+
+    for (const dir of candidateDirs) {
+      const sCandidate = path.join(dir, 'shelf_life_model.json')
+      const dCandidate = path.join(dir, 'demand_model.json')
+      if (!shelfLifePath && fs.existsSync(sCandidate)) {
+        shelfLifePath = sCandidate
+      }
+      if (!demandPath && fs.existsSync(dCandidate)) {
+        demandPath = dCandidate
+      }
     }
-    if (fs.existsSync(demandPath)) {
+
+    if (shelfLifePath) {
+      shelfLifeModel = JSON.parse(fs.readFileSync(shelfLifePath, 'utf-8'))
+      console.log(`Successfully loaded Shelf-Life model parameters from ${shelfLifePath}.`)
+    } else {
+      console.warn('Warning: Shelf-Life model JSON not found in candidate paths.')
+    }
+
+    if (demandPath) {
       demandModel = JSON.parse(fs.readFileSync(demandPath, 'utf-8'))
-      console.log('Successfully loaded Demand Prediction model parameters.')
+      console.log(`Successfully loaded Demand Prediction model parameters from ${demandPath}.`)
+    } else {
+      console.warn('Warning: Demand Prediction model JSON not found in candidate paths.')
     }
   } catch (err) {
     console.error('Failed to load ML model JSONs, falling back to heuristics.', err)
@@ -263,8 +289,24 @@ createMockListings()
 const fastify = Fastify({ logger: true })
 
 async function buildServer() {
+  const frontendOrigin = process.env.FRONTEND_ORIGIN || 'http://localhost:5173'
+  const allowedOrigins = frontendOrigin.split(',').map(o => o.trim().replace(/\/$/, ''))
+
   await fastify.register(fastifyCors, {
-    origin: true,
+    origin: (origin, cb) => {
+      // Allow requests with no origin (like health checks, curl, mobile apps)
+      if (!origin) return cb(null, true)
+      const cleanOrigin = origin.replace(/\/$/, '')
+      if (
+        allowedOrigins.includes(cleanOrigin) ||
+        allowedOrigins.includes('*') ||
+        cleanOrigin === 'http://localhost:5173' ||
+        cleanOrigin === 'http://127.0.0.1:5173'
+      ) {
+        return cb(null, true)
+      }
+      return cb(new Error('Not allowed by CORS'), false)
+    },
     credentials: true,
   })
 
@@ -280,8 +322,9 @@ async function buildServer() {
 
   await fastify.register(fastifyWebsocket)
 
+  // Health check endpoint for Render / cloud monitoring
   fastify.get('/health', async () => {
-    return { status: 'ok', timestamp: new Date().toISOString() }
+    return { status: 'ok' }
   })
 
   fastify.get('/api/v1/meta/produce-types', async () => {

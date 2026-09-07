@@ -177,6 +177,9 @@ demand_model = {
     'demand_tree': serialize_tree(dt_demand.tree_, m4_feature_names)
 }
 
+os.makedirs('backend/src/models', exist_ok=True)
+os.makedirs('data/synthetic', exist_ok=True)
+
 with open('backend/src/models/shelf_life_model.json', 'w') as f:
     json.dump(shelf_life_model, f, indent=2)
 

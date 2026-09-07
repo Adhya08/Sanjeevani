@@ -1,8 +1,15 @@
 // Sanjeevani API Service Layer
 // Centralised HTTP + WebSocket client
 
-const BASE_URL = '/api/v1'
-const WS_URL = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`
+const rawApiUrl = import.meta.env.VITE_API_URL || ''
+const BASE_URL = rawApiUrl
+  ? (rawApiUrl.endsWith('/api/v1') ? rawApiUrl : `${rawApiUrl.replace(/\/$/, '')}/api/v1`)
+  : '/api/v1'
+
+const rawWsUrl = import.meta.env.VITE_WS_URL || ''
+const WS_BASE = rawWsUrl
+  ? rawWsUrl.replace(/\/$/, '')
+  : `${typeof location !== 'undefined' && location.protocol === 'https:' ? 'wss' : 'ws'}://${typeof location !== 'undefined' ? location.host : 'localhost:5173'}`
 
 // ─── Types (mirrored from backend) ────────────────────────────────────────────
 
@@ -170,7 +177,8 @@ export function connectAgentLog(
   onHistory: (events: AgentEvent[]) => void,
   sessionId?: string,
 ): () => void {
-  const url = `${WS_URL}/ws/v1/agent-log${sessionId ? `?sessionId=${sessionId}` : ''}`
+  const wsEndpoint = WS_BASE.endsWith('/ws/v1/agent-log') ? WS_BASE : `${WS_BASE}/ws/v1/agent-log`
+  const url = `${wsEndpoint}${sessionId ? `?sessionId=${sessionId}` : ''}`
   let ws: WebSocket | null = null
   let reconnectTimer: ReturnType<typeof setTimeout> | null = null
   let closed = false

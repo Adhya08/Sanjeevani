@@ -1,0 +1,31 @@
+services:
+  # 1. Fastify Backend Web Service
+  - type: web
+    name: sanjeevani-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /health
+    envVars:
+      - key: FRONTEND_ORIGIN
+        sync: false
+      - key: NODE_VERSION
+        value: 18
+
+  # 2. Vite + React Frontend Static Site
+  - type: web
+    name: sanjeevani-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        sync: false
+      - key: VITE_WS_URL
+        sync: false
