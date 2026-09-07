@@ -841,8 +841,9 @@ setInterval(() => {
 const start = async () => {
   try {
     await buildServer()
-    await fastify.listen({ port: 3000, host: '0.0.0.0' })
-    console.log('🚀 Sanjeevani backend running on http://localhost:3000')
+    const port = Number(process.env.PORT) || 3000
+    await fastify.listen({ port, host: '0.0.0.0' })
+    console.log(`🚀 Sanjeevani backend running on http://localhost:${port}`)
   } catch (err) {
     fastify.log.error(err)
     process.exit(1)
