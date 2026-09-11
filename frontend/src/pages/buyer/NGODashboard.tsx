@@ -182,19 +182,67 @@ export const NGODashboard: React.FC = () => {
             </div>
 
             {loading ? (
-              <div className="p-12 text-center text-xs text-ink/60">Scanning lots...</div>
+              <div className="p-12 text-center text-xs text-ink/60">
+                Scanning perishable lots nearing threshold…
+              </div>
+            ) : listings.length === 0 ? (
+              <div className="p-8 text-center border border-ink/15 bg-paper/40 text-xs">
+                <p className="font-semibold text-moss">No imminent spoilage lots detected on yard.</p>
+                <p className="text-ink/60 mt-1">All mandi storage configurations are currently within commercial safe windows.</p>
+              </div>
             ) : (
               <div className="space-y-4">
                 {listings.map((item) => (
-                  <div key={item.id} className="border border-ink/20 p-4 bg-paper space-y-2">
-                    <p className="font-serif font-bold text-ink">{item.produceType} — {item.quantityAvailable} kg</p>
+                  <div
+                    key={item.id}
+                    className="border border-ink/20 p-4 bg-paper hover:bg-paper/80 transition-none space-y-3"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-serif text-lg font-bold text-ink">
+                          {item.produceType}{' '}
+                          <span className="font-sans text-xs font-normal text-ink/60">
+                            — {item.orgName || 'Nashik Panchavati Yard'}
+                          </span>
+                        </h3>
+                        <p className="text-xs text-ink/60 tabular-nums">
+                          Lot #{item.id.slice(0, 12)} • {item.city} • {item.distanceKm || 3.8} km from dispatch dock
+                        </p>
+                      </div>
+
+                      <span className="border border-rust text-rust bg-paper px-2.5 py-1 text-xs font-bold tabular-nums">
+                        Risk score: {item.wasteRiskScore}%
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 p-2.5 bg-paper/60 border border-ink/15 text-xs tabular-nums">
+                      <div>
+                        <span className="text-ink/60 block text-[11px]">Available quantity</span>
+                        <span className="font-bold text-ink">{item.quantityAvailable} kg</span>
+                      </div>
+                      <div>
+                        <span className="text-ink/60 block text-[11px]">Remaining freshness window</span>
+                        <span className="font-bold text-rust">
+                          {item.estimatedDaysRange ? `${item.estimatedDaysRange[0]}-${item.estimatedDaysRange[1]} days` : '4–8 hours'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-ink/60 block text-[11px]">Cost to recipient</span>
+                        <span className="font-bold text-moss">₹0 (Zero-cost rescue)</span>
+                      </div>
+                    </div>
+
                     <button
                       type="button"
                       onClick={() => handleClaimRescue(item.id, item.quantityAvailable)}
                       disabled={claimingId === item.id}
-                      className="px-3 py-1 bg-rust text-paper text-xs"
+                      className="w-full bg-rust text-paper border border-ink hover:bg-rust/90 disabled:opacity-50 py-2.5 text-xs font-semibold transition-none flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none"
                     >
-                      Claim rescue
+                      {claimingId === item.id ? (
+                        <span>Logging dispatch pass &amp; notifying carrier…</span>
+                      ) : (
+                        <span>Claim free rescue batch ({item.quantityAvailable} kg)</span>
+                      )}
                     </button>
                   </div>
                 ))}
@@ -203,6 +251,7 @@ export const NGODashboard: React.FC = () => {
           </div>
         </div>
       </main>
+
       <ActivityLog />
     </div>
   )
