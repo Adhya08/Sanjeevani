@@ -273,6 +273,69 @@ export const ListingsPage: React.FC = () => {
               </div>
             )}
 
+            {/* All Registered Listings Table */}
+            <div className="border border-ink/20 bg-paper">
+              <div className="bg-slate text-paper px-4 py-2.5 flex items-center justify-between border-b border-ink/20 text-xs">
+                <h2 className="font-semibold">All registered farm listings</h2>
+                <span className="text-paper/70">Panchavati terminal registry</span>
+              </div>
+
+              {listings.length === 0 ? (
+                <div className="p-12 text-center text-xs text-ink/60">
+                  No registered listings found.
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs tabular-nums border-collapse">
+                    <thead>
+                      <tr className="bg-paper/80 border-b border-ink/20 text-ink/80 font-semibold">
+                        <th className="p-3 border-r border-ink/10">Produce</th>
+                        <th className="p-3 border-r border-ink/10">Lot ID</th>
+                        <th className="p-3 border-r border-ink/10">Location</th>
+                        <th className="p-3 border-r border-ink/10">Stock</th>
+                        <th className="p-3 border-r border-ink/10">Risk score</th>
+                        <th className="p-3 border-r border-ink/10">Price</th>
+                        <th className="p-3">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-ink/10 text-ink">
+                      {listings.map((item, idx) => {
+                        const isCritical = item.wasteRiskScore > 60
+                        const isModerate = item.wasteRiskScore > 35 && item.wasteRiskScore <= 60
+
+                        return (
+                          <tr key={item.id} className={`hover:bg-ink/5 transition-none ${idx % 2 === 1 ? 'bg-paper/40' : 'bg-paper'}`}>
+                            <td className="p-3 border-r border-ink/10 font-bold text-ink">{item.produceType}</td>
+                            <td className="p-3 border-r border-ink/10 font-mono text-ink/70">{item.id.slice(0, 12)}</td>
+                            <td className="p-3 border-r border-ink/10 text-ink/70">{item.city}</td>
+                            <td className="p-3 border-r border-ink/10 font-semibold text-ink">
+                              {item.quantityAvailable} / {item.quantityTotal} kg
+                            </td>
+                            <td className="p-3 border-r border-ink/10 font-bold">
+                              <span className={isCritical ? 'text-rust' : isModerate ? 'text-turmeric' : 'text-moss'}>
+                                {item.wasteRiskScore}%
+                              </span>
+                            </td>
+                            <td className="p-3 border-r border-ink/10 font-bold text-ink">₹{item.pricePerKg}/kg</td>
+                            <td className="p-3">
+                              <span className={`inline-block px-2 py-0.5 border text-[11px] font-semibold ${
+                                isCritical
+                                  ? 'bg-rust text-paper border-rust'
+                                  : isModerate
+                                  ? 'bg-turmeric text-paper border-turmeric'
+                                  : 'bg-moss text-paper border-moss'
+                              }`}>
+                                {item.status}
+                              </span>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </>
         )}
       </main>
