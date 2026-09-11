@@ -303,14 +303,41 @@ export const AnalyticsPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Produce-wise table */}
             {produceWiseData.length > 0 && (
-              <div className="border border-ink/20 p-4 bg-paper text-xs font-mono">
-                Audited produce commodity records: {produceWiseData.length}
+              <div className="border border-ink/20 bg-paper">
+                <div className="bg-slate text-paper px-4 py-2.5 flex items-center justify-between border-b border-ink/20 text-xs">
+                  <h3 className="font-semibold">Produce-wise supply performance</h3>
+                  <span className="text-paper/70">Audit by commodity</span>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs tabular-nums border-collapse">
+                    <thead>
+                      <tr className="bg-paper/80 border-b border-ink/20 text-ink/80 font-semibold">
+                        <th className="p-3 border-r border-ink/10">Produce type</th>
+                        <th className="p-3 border-r border-ink/10 text-right">Total listed</th>
+                        <th className="p-3 border-r border-ink/10 text-right">Commercial sold</th>
+                        <th className="p-3 text-right">NGO rescued</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-ink/10 text-ink">
+                      {produceWiseData.map((row) => (
+                        <tr key={row.produce} className="hover:bg-ink/5 transition-none">
+                          <td className="p-3 border-r border-ink/10 font-bold">{row.produce}</td>
+                          <td className="p-3 border-r border-ink/10 text-right">{row.listed} kg</td>
+                          <td className="p-3 border-r border-ink/10 text-right font-semibold text-moss">{row.sold} kg</td>
+                          <td className="p-3 text-right font-semibold text-turmeric">{row.rescued} kg</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </>
         )}
       </main>
+
       <ActivityLog />
     </div>
   )
