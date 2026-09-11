@@ -462,8 +462,89 @@ export const App: React.FC = () => {
           </div>
         </section>
 
+        {/* Quiet Verification & Provenance Block (Explicit Sentence Case Throughout) */}
+        <section className="w-full px-4 md:px-10 py-8 border-b border-ink/20 bg-paper">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border border-ink/20 p-6 bg-paper">
+            <div className="flex items-start sm:items-center gap-4">
+              {/* Double-rule Stamped Box */}
+              <div className="ledger-double-border p-2 bg-paper text-center flex-shrink-0">
+                <span className="font-serif text-xs font-bold text-slate block">Sanjeevani</span>
+                <span className="text-[10px] font-sans font-semibold text-rust block">Seal no. 994</span>
+              </div>
+
+              <div>
+                <h3 className="font-serif text-lg text-ink font-semibold">
+                  Cold-chain integrity record
+                </h3>
+                <p className="text-xs text-ink/75 max-w-xl mt-0.5">
+                  All temperature, ethylene, and auction entries logged on this terminal are final under APMC By-law 44-A.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 text-xs w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-ink/10 pt-4 sm:pt-0">
+              <div className="text-left sm:text-right">
+                <div className="text-ink/60">Superintendent signature block</div>
+                <div className="font-semibold text-ink">D. S. Thorat • NSK-APMC-04</div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="px-4 py-2 border border-ink bg-paper hover:bg-ink/5 text-xs font-semibold focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none"
+              >
+                Print daily folio [P]
+              </button>
+            </div>
+          </div>
+        </section>
       </main>
-      <ActivityLog sessionId={undefined} />
+
+      {/* Mandi Physical Register Footer */}
+      <footer className="w-full bg-paper border-t border-ink/20 text-xs">
+        <div className="px-4 md:px-10 py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 border-b border-ink/15 text-ink/80">
+          <div>
+            <div className="font-serif font-bold text-ink mb-1">Physical register index</div>
+            <p className="text-[11px] leading-relaxed text-ink/70">
+              Book no. 12/B • Folio pages 0441-0520. Continuous APMC cold-chain logbook authenticated via electronic IoT probe telemetry.
+            </p>
+          </div>
+
+          <div>
+            <div className="font-serif font-bold text-ink mb-1">Mandi dispatch desks</div>
+            <ul className="text-[11px] space-y-0.5 text-ink/70">
+              <li>Gate 1A: Perishable green vegetables</li>
+              <li>Gate 3B: Stone fruits & citrus</li>
+              <li>Platform 7: Rescue cold marshaling</li>
+            </ul>
+          </div>
+
+          <div>
+            <div className="font-serif font-bold text-ink mb-1">Verification standards</div>
+            <ul className="text-[11px] space-y-0.5 text-ink/70">
+              <li>Ethylene sensor mesh (0.1 ppm resolution)</li>
+              <li>Pulp core temperature standard (&lt; 6.5°C)</li>
+              <li>FSSAI surplus hygiene code IX</li>
+            </ul>
+          </div>
+
+          <div className="border border-ink/20 p-3 bg-paper/50">
+            <div className="font-semibold text-rust text-[11px]">Registration protocol</div>
+            <div className="text-[11px] font-bold text-ink mt-0.5 tabular-nums">Lot auth: MH-NSK-2024-8842</div>
+            <p className="text-[10px] text-ink/60 mt-1">
+              Stamps verify chain-of-custody handoff. Alteration invalidates ledger record.
+            </p>
+          </div>
+        </div>
+
+        <div className="px-4 md:px-10 py-3 bg-slate text-paper/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px]">
+          <div>Statutory declaration: FSSAI surplus food revenue & distribution recovery guidelines (2019 compliant)</div>
+          <div className="tabular-nums text-paper/60">Sanjeevani APMC produce rescue system</div>
+        </div>
+      </footer>
+
+      {/* Activity Log Drawer */}
+      <ActivityLog />
     </div>
   )
 }
