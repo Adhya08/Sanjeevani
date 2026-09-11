@@ -473,6 +473,68 @@ export const ProducerDashboard: React.FC = () => {
             </div>
           </div>
 
+          {/* Right Column: Live Mandi Dispatch & Ledger Audit Log (5 Cols) */}
+          <div className="lg:col-span-5 p-6 flex flex-col justify-between bg-paper/40">
+            <div>
+              <div className="flex items-center justify-between pb-2 border-b border-ink/15">
+                <h3 className="font-serif text-base text-ink font-semibold">
+                  Live ledger audit log
+                </h3>
+                <span className="text-xs text-rust font-semibold tabular-nums flex items-center gap-1">
+                  <span className="w-2 h-2 bg-rust inline-block"></span>
+                  Pulse: active
+                </span>
+              </div>
+
+              <div className="mt-4 space-y-2 text-xs">
+                <div className="p-3 bg-paper border border-ink/20">
+                  <div className="flex justify-between items-center text-rust font-semibold text-[11px]">
+                    <span>11:42 AM • Critical handoff</span>
+                    <span>Entry #449-NSK</span>
+                  </div>
+                  <p className="text-ink mt-1 text-[11px] leading-relaxed">
+                    Crate lot #NSK-TOM-881 auto-transferred to NGO rescue manifest. Carrier: Robin Hood Army van #MH-15-AG-4912 assigned.
+                  </p>
+                  <div className="text-[10px] text-ink/50 mt-1">Stamped: Yard marshal desk NSK-04</div>
+                </div>
+
+                <div className="p-3 bg-paper border border-ink/20">
+                  <div className="flex justify-between items-center text-turmeric font-semibold text-[11px]">
+                    <span>10:15 AM • Dynamic price adjustment</span>
+                    <span>Marketplace B2B</span>
+                  </div>
+                  <p className="text-ink mt-1 text-[11px] leading-relaxed">
+                    Cauliflower #NSK-CAU-109 lowered 15% on B2B marketplace; 2 institutional bids received from Kissan Puree Co-op.
+                  </p>
+                  <div className="text-[10px] text-ink/50 mt-1">Match valuation: ₹18.50 / kg (Floor: ₹16.00)</div>
+                </div>
+
+                <div className="p-3 bg-paper border border-ink/20">
+                  <div className="flex justify-between items-center text-moss font-semibold text-[11px]">
+                    <span>09:00 AM • Sensor telemetry</span>
+                    <span>Node calibration</span>
+                  </div>
+                  <p className="text-ink mt-1 text-[11px] leading-relaxed">
+                    Sensor node S-12 calibrated via yard marshal wand. Ethylene reading adjusted for ambient humidity offset (+1.8%).
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-ink/15 flex items-center justify-between text-xs">
+              <div>
+                <span className="font-semibold text-ink">Digital APMC ledger seal</span>
+                <div className="text-[10px] text-ink/60">Block #7728190-NSK4 • Secure hash verified</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => alert('Audit log exported.')}
+                className="px-3 py-1.5 bg-slate text-paper text-xs font-semibold hover:bg-slate/90 focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none"
+              >
+                Export log
+              </button>
+            </div>
+          </div>
         </div>
       </main>
       {/* Add Produce Modal */}
