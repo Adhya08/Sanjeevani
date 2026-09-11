@@ -5,17 +5,11 @@ interface ActivityLogProps {
   sessionId?: string
 }
 
-const STATUS_COLORS: Record<string, { dot: string; bg: string; border: string }> = {
-  amber:  { dot: 'bg-amber-500',  bg: 'bg-amber-50',  border: 'border-amber-400' },
-  blue:   { dot: 'bg-blue-500',   bg: 'bg-blue-50',   border: 'border-blue-400' },
-  green:  { dot: 'bg-green-500',  bg: 'bg-green-50',  border: 'border-green-400' },
-  red:    { dot: 'bg-red-500',    bg: 'bg-red-50',    border: 'border-red-400' },
-}
-
-const AGENT_ICONS: Record<string, string> = {
-  producer_agent: '🌱',
-  buyer_agent: '🛒',
-  system: '⚙️',
+const STATUS_TOKENS: Record<string, { dot: string; bg: string; border: string; text: string }> = {
+  amber: { dot: 'bg-turmeric', bg: 'bg-paper', border: 'border-turmeric', text: 'text-ink' },
+  blue:  { dot: 'bg-slate', bg: 'bg-paper', border: 'border-slate', text: 'text-ink' },
+  green: { dot: 'bg-moss', bg: 'bg-paper', border: 'border-moss', text: 'text-ink' },
+  red:   { dot: 'bg-rust', bg: 'bg-paper', border: 'border-rust', text: 'text-ink' },
 }
 
 export const ActivityLog: React.FC<ActivityLogProps> = ({ sessionId }) => {
@@ -29,7 +23,7 @@ export const ActivityLog: React.FC<ActivityLogProps> = ({ sessionId }) => {
     const disconnect = connectAgentLog(
       (event) => {
         setConnected(true)
-        setEvents((prev) => [...prev.slice(-49), event]) // keep last 50
+        setEvents((prev) => [...prev.slice(-49), event])
       },
       (history) => {
         setConnected(true)
@@ -38,7 +32,6 @@ export const ActivityLog: React.FC<ActivityLogProps> = ({ sessionId }) => {
       sessionId,
     )
 
-    // If WS doesn't connect in 2s, inject mock events so UI isn't empty
     const fallbackTimer = setTimeout(() => {
       setEvents((prev) => {
         if (prev.length > 0) return prev
@@ -49,7 +42,7 @@ export const ActivityLog: React.FC<ActivityLogProps> = ({ sessionId }) => {
             agentName: 'producer_agent',
             eventType: 'search_start',
             payload: {},
-            humanReadableText: '🌱 Producer Agent scanning listings for tomato within 5km…',
+            humanReadableText: 'Producer agent scanning mandi lots for tomato within 5km…',
             statusColor: 'amber',
             ts: new Date().toISOString(),
           },
@@ -59,7 +52,7 @@ export const ActivityLog: React.FC<ActivityLogProps> = ({ sessionId }) => {
             agentName: 'buyer_agent',
             eventType: 'offer_made',
             payload: { price: 28, quantity: 40 },
-            humanReadableText: '🛒 Buyer Agent: Offer ₹28/kg for 40kg Tomato',
+            humanReadableText: 'Buyer agent bid registered: ₹28/kg for 40kg tomato',
             statusColor: 'blue',
             ts: new Date().toISOString(),
           },
@@ -69,7 +62,7 @@ export const ActivityLog: React.FC<ActivityLogProps> = ({ sessionId }) => {
             agentName: 'producer_agent',
             eventType: 'counter_offer',
             payload: { price: 27 },
-            humanReadableText: '🌱 Producer Agent countered: ₹27/kg (waste risk 35%)',
+            humanReadableText: 'Producer desk countered: ₹27/kg (waste risk score: 35%)',
             statusColor: 'blue',
             ts: new Date().toISOString(),
           },
@@ -79,7 +72,7 @@ export const ActivityLog: React.FC<ActivityLogProps> = ({ sessionId }) => {
             agentName: 'system',
             eventType: 'confirmed',
             payload: {},
-            humanReadableText: '✅ Order CONFIRMED! 40kg at ₹27/kg. Stock: 160kg remaining.',
+            humanReadableText: 'Order confirmed: 40kg at ₹27/kg. Stock: 160kg remaining.',
             statusColor: 'green',
             ts: new Date().toISOString(),
           },
@@ -93,7 +86,6 @@ export const ActivityLog: React.FC<ActivityLogProps> = ({ sessionId }) => {
     }
   }, [sessionId])
 
-  // Auto-scroll
   useEffect(() => {
     if (isExpanded) {
       eventsEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -101,80 +93,80 @@ export const ActivityLog: React.FC<ActivityLogProps> = ({ sessionId }) => {
   }, [events, isExpanded])
 
   const latestColor = events.length > 0 ? events[events.length - 1].statusColor : 'amber'
-  const colors = STATUS_COLORS[latestColor] || STATUS_COLORS.amber
+  const colors = STATUS_TOKENS[latestColor] || STATUS_TOKENS.amber
 
   return (
     <div className="fixed bottom-4 right-4 z-50 font-sans">
       <div
-        className={`bg-white rounded-xl shadow-2xl border border-gray-200 transition-all duration-300 overflow-hidden ${
-          isExpanded ? 'w-96' : 'w-14'
+        className={`bg-paper border-2 border-ink transition-none ${
+          isExpanded ? 'w-96' : 'w-12'
         }`}
       >
         {/* Header */}
         <div
-          className="flex items-center justify-between p-3 cursor-pointer bg-gray-900 text-white rounded-t-xl select-none"
+          className="flex items-center justify-between p-2.5 cursor-pointer bg-slate text-paper select-none"
           onClick={() => setIsExpanded(!isExpanded)}
         >
           <div className="flex items-center gap-2">
-            <span className="text-lg">📡</span>
-            {isExpanded && <span className="font-semibold text-sm">Live Agent Activity</span>}
+            <span className="text-xs font-serif font-bold">Ledger</span>
+            {isExpanded && <span className="text-xs text-paper/80">Autonomous telemetry feed</span>}
           </div>
-          <div className="flex items-center gap-2">
-            {/* Connection dot */}
+          <div className="flex items-center gap-2 text-xs">
             <span
-              className={`w-2 h-2 rounded-full ${connected ? 'bg-green-400' : 'bg-amber-400'} animate-pulse`}
+              className={`w-2 h-2 ${connected ? 'bg-moss' : 'bg-turmeric'}`}
               title={connected ? 'Live' : 'Connecting…'}
             />
             {isExpanded && events.length > 0 && (
               <button
-                className="text-xs text-gray-400 hover:text-white px-1"
-                onClick={(e) => { e.stopPropagation(); setEvents([]) }}
+                type="button"
+                className="text-[10px] text-paper/70 hover:text-paper px-1 focus-visible:ring-1 focus-visible:ring-turmeric focus-visible:outline-none"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setEvents([])
+                }}
               >
                 Clear
               </button>
             )}
             {isExpanded && (
-              <span className="text-gray-400 text-xs">{isExpanded ? '▼' : '▲'}</span>
+              <span className="text-paper/60 text-[10px]">{isExpanded ? '▼' : '▲'}</span>
             )}
           </div>
         </div>
 
         {/* Events list */}
         {isExpanded && (
-          <div className="max-h-72 overflow-y-auto p-2 space-y-1">
+          <div className="max-h-72 overflow-y-auto p-2 space-y-1.5 bg-paper text-ink">
             {events.length === 0 && (
-              <p className="text-xs text-gray-400 text-center py-6 italic">Waiting for agent activity…</p>
+              <p className="text-xs text-ink/50 text-center py-6">Waiting for agent activity…</p>
             )}
             {events.map((event) => {
-              const c = STATUS_COLORS[event.statusColor] || STATUS_COLORS.amber
+              const c = STATUS_TOKENS[event.statusColor] || STATUS_TOKENS.amber
               const isOpen = expandedEventId === event.id
 
               return (
                 <div
                   key={event.id}
-                  className={`rounded-lg border ${c.border} ${c.bg} p-2 cursor-pointer transition-all duration-150 hover:opacity-90`}
+                  className={`border ${c.border} ${c.bg} p-2 cursor-pointer transition-none`}
                   onClick={() => setExpandedEventId(isOpen ? null : event.id)}
                 >
                   <div className="flex items-start gap-2">
-                    <span className="text-base mt-0.5 flex-shrink-0">
-                      {AGENT_ICONS[event.agentName] || '🤖'}
-                    </span>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 mb-0.5">
-                        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${c.dot}`} />
-                        <span className="text-[10px] text-gray-500">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className={`w-1.5 h-1.5 ${c.dot}`} />
+                        <span className="text-[10px] text-ink/60 tabular-nums">
                           {new Date(event.ts).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                         </span>
+                        <span className="text-[10px] text-ink/50 font-mono">[{event.agentName}]</span>
                       </div>
-                      <p className="text-xs text-gray-800 leading-snug">{event.humanReadableText}</p>
+                      <p className="text-xs text-ink leading-snug">{event.humanReadableText}</p>
 
-                      {/* Expandable payload */}
                       {isOpen && Object.keys(event.payload || {}).length > 0 && (
-                        <div className="mt-1.5 bg-white/70 rounded p-1.5 space-y-0.5">
+                        <div className="mt-1.5 bg-paper/90 border border-ink/20 p-1.5 space-y-0.5 tabular-nums">
                           {Object.entries(event.payload).map(([k, v]) => (
                             <div key={k} className="flex justify-between gap-2 text-[10px]">
-                              <span className="text-gray-500 font-medium">{k}</span>
-                              <span className="text-gray-800">{String(v)}</span>
+                              <span className="text-ink/60 font-medium">{k}</span>
+                              <span className="text-ink font-bold">{String(v)}</span>
                             </div>
                           ))}
                         </div>
@@ -190,10 +182,10 @@ export const ActivityLog: React.FC<ActivityLogProps> = ({ sessionId }) => {
 
         {/* Collapsed dot indicators */}
         {!isExpanded && (
-          <div className="flex flex-col items-center gap-1 p-2">
-            <div className={`w-2 h-2 rounded-full ${colors.dot} animate-pulse`} />
+          <div className="flex flex-col items-center gap-1 p-2 bg-paper cursor-pointer" onClick={() => setIsExpanded(true)}>
+            <div className={`w-2 h-2 ${colors.dot}`} />
             {events.length > 0 && (
-              <span className="text-[9px] text-gray-500">{events.length}</span>
+              <span className="text-[9px] text-ink/70 tabular-nums">{events.length}</span>
             )}
           </div>
         )}
