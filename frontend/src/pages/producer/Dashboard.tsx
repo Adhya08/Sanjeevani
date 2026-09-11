@@ -387,6 +387,93 @@ export const ProducerDashboard: React.FC = () => {
           </div>
         </div>
 
+        {/* Bottom Split: Produce Decay Trajectory Line Chart & Live Audit Log */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 border border-ink/20 divide-y lg:divide-y-0 lg:divide-x divide-ink/20 bg-paper">
+          {/* Left Column: Decay Risk Line Chart (7 Cols) */}
+          <div className="lg:col-span-7 p-6 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between pb-2 border-b border-ink/15">
+                <div>
+                  <h2 className="font-serif text-lg text-ink font-semibold">
+                    Decay risk over time per crop batch
+                  </h2>
+                  <p className="text-xs text-ink/70">Dynamic shelf-life curves derived from ambient heat & ethylene</p>
+                </div>
+                <span className="text-xs border border-ink/20 px-2 py-0.5 text-ink/70 bg-paper/50">
+                  APMC Sensor Matrix v2.4
+                </span>
+              </div>
+
+              {/* Crisp SVG Chart with Hairline Ledger Rules */}
+              <div className="mt-4 w-full bg-paper border border-ink/20 p-2 overflow-hidden">
+                <svg className="w-full h-56" preserveAspectRatio="none" viewBox="0 0 600 240">
+                  {/* Background Grid Rulings */}
+                  <line x1="50" y1="20" x2="570" y2="20" stroke="#3A4038" strokeDasharray="2,2" strokeWidth="1" strokeOpacity="0.2" />
+                  <line x1="50" y1="65" x2="570" y2="65" stroke="#8B3A2B" strokeDasharray="3,3" strokeWidth="1" strokeOpacity="0.4" />
+                  <line x1="50" y1="125" x2="570" y2="125" stroke="#B9791F" strokeDasharray="3,3" strokeWidth="1" strokeOpacity="0.4" />
+                  <line x1="50" y1="180" x2="570" y2="180" stroke="#3A4038" strokeDasharray="2,2" strokeWidth="1" strokeOpacity="0.2" />
+                  <line x1="50" y1="210" x2="570" y2="210" stroke="#2B2620" strokeWidth="1.5" />
+
+                  {/* Vertical Axis */}
+                  <line x1="50" y1="20" x2="50" y2="210" stroke="#2B2620" strokeWidth="1.5" />
+                  <line x1="180" y1="20" x2="180" y2="210" stroke="#2B2620" strokeWidth="0.5" strokeOpacity="0.1" />
+                  <line x1="310" y1="20" x2="310" y2="210" stroke="#2B2620" strokeWidth="0.5" strokeOpacity="0.1" />
+                  <line x1="440" y1="20" x2="440" y2="210" stroke="#2B2620" strokeWidth="0.5" strokeOpacity="0.1" />
+                  <line x1="570" y1="20" x2="570" y2="210" stroke="#2B2620" strokeWidth="0.5" strokeOpacity="0.1" />
+
+                  {/* Threshold Labels */}
+                  <text x="565" y="60" textAnchor="end" fill="#8B3A2B" fontSize="10" fontWeight="700">Rescue dispatch trigger (70%)</text>
+                  <text x="565" y="120" textAnchor="end" fill="#B9791F" fontSize="10" fontWeight="700">Discount trigger (40%)</text>
+
+                  {/* Y Axis Labels */}
+                  <text x="42" y="24" textAnchor="end" fill="#2B2620" fontSize="10">100%</text>
+                  <text x="42" y="68" textAnchor="end" fill="#8B3A2B" fontSize="10" fontWeight="700">70%</text>
+                  <text x="42" y="128" textAnchor="end" fill="#B9791F" fontSize="10" fontWeight="700">40%</text>
+                  <text x="42" y="213" textAnchor="end" fill="#2B2620" fontSize="10">0%</text>
+
+                  {/* Trajectory 1: Tomato (Steep upward curve into Rust) */}
+                  <path d="M 50 195 C 130 185, 220 130, 350 75 S 500 48, 560 40" fill="none" stroke="#8B3A2B" strokeWidth="2.5" />
+                  <circle cx="50" cy="195" r="3" fill="#8B3A2B" />
+                  <circle cx="350" cy="75" r="4" fill="#8B3A2B" stroke="#EDE6D6" strokeWidth="1" />
+                  <circle cx="560" cy="40" r="4" fill="#8B3A2B" />
+
+                  {/* Trajectory 2: Cauliflower (Moderate into Turmeric) */}
+                  <path d="M 50 202 C 150 198, 260 170, 390 128 S 510 110, 560 102" fill="none" stroke="#B9791F" strokeWidth="2" strokeDasharray="3,1" />
+                  <circle cx="390" cy="128" r="3" fill="#B9791F" />
+                  <circle cx="560" cy="102" r="3" fill="#B9791F" />
+
+                  {/* Trajectory 3: Onion (Flat resilient line in Moss zone) */}
+                  <path d="M 50 205 C 180 205, 330 200, 450 195 S 520 190, 560 186" fill="none" stroke="#5C6B4F" strokeWidth="2" />
+                  <circle cx="560" cy="186" r="3" fill="#5C6B4F" />
+
+                  {/* X Axis Labels */}
+                  <text x="50" y="228" textAnchor="middle" fill="#2B2620" fontSize="10">0h (Harvest)</text>
+                  <text x="180" y="228" textAnchor="middle" fill="#2B2620" fontSize="10">12h</text>
+                  <text x="310" y="228" textAnchor="middle" fill="#2B2620" fontSize="10">24h</text>
+                  <text x="440" y="228" textAnchor="middle" fill="#2B2620" fontSize="10">36h</text>
+                  <text x="560" y="228" textAnchor="end" fill="#2B2620" fontSize="10">48h</text>
+                </svg>
+              </div>
+            </div>
+
+            {/* Legend Bar */}
+            <div className="mt-4 pt-3 border-t border-ink/15 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 bg-rust inline-block"></span>
+                <span className="text-ink">Tomato #881 (Critical rescue zone)</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 bg-turmeric inline-block"></span>
+                <span className="text-ink">Cauliflower #109 (Discount markdown zone)</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 bg-moss inline-block"></span>
+                <span className="text-ink">Onion #312 (Safe holding tier)</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </main>
       {/* Add Produce Modal */}
       {showAddModal && (
