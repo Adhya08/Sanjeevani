@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { ActivityLog } from '../../components/log-console/ActivityLog'
 import { api, Listing } from '../../services/api'
 
@@ -29,6 +30,7 @@ export const NGODashboard: React.FC = () => {
       setRescuedCount((prev) => prev + 1)
       setRescuedKg((prev) => prev + kg)
       setListings((prev) => prev.filter((l) => l.id !== listingId))
+      alert(`Rescue manifest confirmed! Lot dispatched under zero-cost APMC Rule 32-B. Transit van notified.`)
     } catch (err) {
       alert(`Failed to claim rescue: ${err instanceof Error ? err.message : String(err)}`)
     } finally {
@@ -37,146 +39,162 @@ export const NGODashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-900 text-slate-100 pb-20 font-sans">
-      {/* Sticky Header */}
-      <header className="bg-slate-900/80 backdrop-blur-md border-b border-emerald-500/20 p-5 sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl animate-pulse">💚</span>
-            <div>
-              <h1 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-200 bg-clip-text text-transparent">
-                NGO Rescue Hub
-              </h1>
-              <p className="text-xs text-emerald-200/70 font-medium">खाद्य सुरक्षा एवं सहायता — Expired Crops Logistics Gateway</p>
-            </div>
+    <div className="min-h-screen bg-paper text-ink font-sans selection:bg-turmeric selection:text-ink">
+      {/* Top Status Strip */}
+      <div className="w-full bg-slate text-paper px-4 md:px-10 py-2 border-b border-ink/20 flex flex-wrap items-center justify-between gap-2 text-xs tabular-nums">
+        <div className="flex items-center gap-3">
+          <span className="border border-paper/30 px-1.5 py-0.5 text-[11px] font-semibold">
+            APMC Desk #3
+          </span>
+          <span className="text-paper/80">
+            Mandi emergency relief marshaling • Zero-cost food rescue routing
+          </span>
+        </div>
+        <div className="flex items-center gap-4 text-paper/90">
+          <span className="text-paper">Accredited kitchens on network: 14</span>
+          <span className="hidden sm:inline text-paper/70">Transit limit: 45 min pickup</span>
+        </div>
+      </div>
+
+      {/* Main Navigation Header */}
+      <header className="w-full bg-paper border-b border-ink/20 sticky top-0 z-30">
+        <div className="px-4 md:px-10 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <Link to="/" className="flex flex-col group focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none">
+              <span className="font-serif text-2xl font-bold text-ink tracking-tight">
+                Sanjeevani
+              </span>
+              <span className="text-[11px] font-sans text-ink/70 leading-none">
+                NGO rescue hub & dispatch feed
+              </span>
+            </Link>
+
+            <div className="h-7 w-[1px] bg-ink/15 hidden md:block"></div>
+
+            <nav className="hidden md:flex items-center gap-1 text-xs font-semibold">
+              <Link to="/" className="px-3 py-1.5 text-ink/80 hover:text-ink hover:bg-ink/5 transition-none focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none">
+                Overview
+              </Link>
+              <Link to="/producer" className="px-3 py-1.5 text-ink/80 hover:text-ink hover:bg-ink/5 transition-none focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none">
+                Producer ledger
+              </Link>
+              <Link to="/buyer" className="px-3 py-1.5 text-ink/80 hover:text-ink hover:bg-ink/5 transition-none focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none">
+                Discount marketplace
+              </Link>
+              <Link to="/ngo" className="px-3 py-1.5 bg-ink/10 text-ink border-b-2 border-turmeric focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none">
+                NGO dispatch feed
+              </Link>
+              <Link to="/listings" className="px-3 py-1.5 text-ink/80 hover:text-ink hover:bg-ink/5 transition-none focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none">
+                Crate inventory
+              </Link>
+              <Link to="/analytics" className="px-3 py-1.5 text-ink/80 hover:text-ink hover:bg-ink/5 transition-none focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none">
+                Waste analytics
+              </Link>
+            </nav>
           </div>
-          <a
-            href="/"
-            className="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl text-slate-200 font-bold transition-all"
-          >
-            ← Home
-          </a>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={fetchEligible}
+              className="px-3 py-1.5 bg-paper text-ink border border-ink text-xs font-semibold hover:bg-ink/5 focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none"
+            >
+              Refresh dispatch board
+            </button>
+            <Link
+              to="/"
+              className="text-xs text-ink/70 hover:text-ink underline focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none"
+            >
+              Home overview
+            </Link>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left column: Metrics & capacity */}
+      <main className="p-4 md:p-8 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column: Metrics & Capacity */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-slate-900/60 border border-emerald-500/10 rounded-2xl p-6 backdrop-blur-sm shadow-xl">
-            <h2 className="font-extrabold text-emerald-400 text-lg mb-4 flex items-center gap-2">
-              <span>🚛</span> Capacity & Target
-            </h2>
-            <div className="text-center py-4 bg-slate-950/40 border border-slate-850/50 rounded-xl mb-4">
-              <p className="text-3xl font-extrabold text-emerald-400">1,500 kg</p>
-              <p className="text-[10px] text-slate-500 mt-1 font-semibold uppercase tracking-wider">Daily Rescue Capacity</p>
-              
-              <div className="mt-5 px-4">
-                <div className="bg-slate-900 rounded-full h-3 overflow-hidden border border-slate-800">
+          <div className="border border-ink/20 p-5 bg-paper space-y-4">
+            <div className="flex items-center justify-between border-b border-ink/15 pb-2">
+              <h2 className="font-serif text-lg font-bold text-ink">
+                Daily rescue capacity
+              </h2>
+              <span className="text-[11px] text-rust font-semibold">Tier 3 relief</span>
+            </div>
+
+            <div className="p-4 bg-paper/60 border border-ink/15 text-center space-y-2">
+              <div className="font-serif text-3xl font-bold text-ink tabular-nums">
+                1,500 <span className="font-sans text-sm font-normal text-ink/60">kg</span>
+              </div>
+              <p className="text-[11px] text-ink/60">Target intake across community relief hubs</p>
+
+              <div className="mt-3 pt-2">
+                <div className="w-full bg-paper border border-ink/30 h-3 overflow-hidden">
                   <div
-                    className="bg-gradient-to-r from-emerald-500 to-teal-500 h-3 rounded-full transition-all"
+                    className="bg-moss h-full transition-none"
                     style={{ width: `${Math.min(100, ((rescuedKg + 350) / 1500) * 100)}%` }}
                   />
                 </div>
-                <p className="text-[11px] text-slate-400 mt-2 font-medium">
-                  {350 + rescuedKg}kg / 1,500kg claimed today
+                <p className="text-[11px] text-ink/70 mt-2 font-medium tabular-nums">
+                  {350 + rescuedKg} kg / 1,500 kg routed today ({Math.round(((rescuedKg + 350) / 1500) * 100)}%)
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-900/60 border border-amber-500/10 rounded-2xl p-6 backdrop-blur-sm shadow-xl">
-            <h3 className="font-extrabold text-amber-400 mb-4 flex items-center gap-2">
-              <span>📈</span> NGO Impact metrics
+          <div className="border border-ink/20 p-5 bg-paper space-y-3">
+            <h3 className="font-serif text-base font-bold text-ink border-b border-ink/15 pb-2">
+              Relief impact ledger
             </h3>
-            <div className="space-y-4 text-sm">
-              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                <span className="text-slate-400">Rescued Sessions:</span>
-                <span className="font-extrabold text-amber-400">{12 + rescuedCount}</span>
+            <div className="space-y-2.5 text-xs tabular-nums">
+              <div className="flex justify-between items-center border-b border-ink/10 pb-2">
+                <span className="text-ink/70">Rescued sessions logged:</span>
+                <span className="font-bold text-ink">{12 + rescuedCount}</span>
               </div>
-              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                <span className="text-slate-400">Food Rescued:</span>
-                <span className="font-extrabold text-emerald-400">{1250 + rescuedKg} kg</span>
+              <div className="flex justify-between items-center border-b border-ink/10 pb-2">
+                <span className="text-ink/70">Produce diverted from landfill:</span>
+                <span className="font-bold text-moss">{1250 + rescuedKg} kg</span>
               </div>
               <div className="flex justify-between items-center pb-1">
-                <span className="text-slate-400">Estimated Value Saved:</span>
-                <span className="font-extrabold text-sky-400">₹{Math.floor((1250 + rescuedKg) * 22)}</span>
+                <span className="text-ink/70">Estimated market value preserved:</span>
+                <span className="font-bold text-turmeric">₹{Math.floor((1250 + rescuedKg) * 22)}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right column: Donation lists */}
+        {/* Right Column: High Risk Batches For Rescue */}
         <div className="lg:col-span-2">
-          <div className="bg-slate-900/40 border border-slate-850 rounded-2xl p-6 backdrop-blur-sm shadow-xl">
-            <div className="flex justify-between items-center mb-6">
+          <div className="border border-ink/20 p-5 bg-paper">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-ink/15">
               <div>
-                <h2 className="text-xl font-extrabold text-slate-100">High Waste Risk Stock</h2>
-                <p className="text-xs text-slate-400 mt-1">Crops with &gt;65% waste risk score prioritized for zero-cost distribution</p>
+                <h2 className="font-serif text-xl font-bold text-ink">
+                  Imminent spoil risk batches
+                </h2>
+                <p className="text-xs text-ink/70">
+                  Batches crossing the 36-hour threshold eligible for zero-cost distribution
+                </p>
               </div>
-              <button
-                onClick={fetchEligible}
-                className="text-xs text-emerald-400 hover:text-emerald-350 font-bold underline transition-colors"
-              >
-                Refresh Board
-              </button>
+
+              <span className="text-xs border border-rust/40 text-rust font-semibold px-2 py-0.5 bg-paper">
+                Zero-cost routing active
+              </span>
             </div>
 
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-20 space-y-3">
-                <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-slate-400 text-sm font-medium">Scanning high-risk inventories…</p>
-              </div>
-            ) : listings.length === 0 ? (
-              <div className="text-center py-16 bg-slate-900/20 rounded-2xl border border-dashed border-slate-850 px-4">
-                <p className="text-emerald-400 font-bold text-lg">No High-Risk Waste Found! 🎉</p>
-                <p className="text-xs text-slate-550 mt-1.5">All local seller configurations are currently within safe preservation levels.</p>
-              </div>
+              <div className="p-12 text-center text-xs text-ink/60">Scanning lots...</div>
             ) : (
-              <div className="space-y-5">
+              <div className="space-y-4">
                 {listings.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-slate-900/60 rounded-2xl border border-slate-800 p-5 hover:border-emerald-500/35 transition-all duration-300 shadow-md group"
-                  >
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h3 className="font-extrabold text-slate-100 text-lg group-hover:text-emerald-400 transition-colors">
-                          {item.produceType} <span className="text-slate-500 font-normal text-xs">— {item.orgName || 'Local Farm'}</span>
-                        </h3>
-                        <p className="text-[10px] text-slate-550 mt-0.5">📍 {item.city} • {item.distanceKm} km away</p>
-                      </div>
-                      <span className="bg-red-950/80 text-red-300 font-extrabold text-xs px-3.5 py-1.5 rounded-xl border border-red-800/40">
-                        Risk: {item.wasteRiskScore}%
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-3 my-4 text-xs bg-slate-950/40 p-3 rounded-xl border border-slate-850/50">
-                      <div>
-                        <span className="text-slate-500 block mb-0.5">Available Quantity</span>
-                        <span className="font-bold text-slate-200">{item.quantityAvailable} kg</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500 block mb-0.5">Est. Fresh Days</span>
-                        <span className="font-bold text-amber-400">
-                          {item.estimatedDaysRange ? `${item.estimatedDaysRange[0]}-${item.estimatedDaysRange[1]} days` : '1-2 days'}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500 block mb-0.5">List Price</span>
-                        <span className="font-bold text-slate-200">₹{item.pricePerKg}/kg</span>
-                      </div>
-                    </div>
-
+                  <div key={item.id} className="border border-ink/20 p-4 bg-paper space-y-2">
+                    <p className="font-serif font-bold text-ink">{item.produceType} — {item.quantityAvailable} kg</p>
                     <button
+                      type="button"
                       onClick={() => handleClaimRescue(item.id, item.quantityAvailable)}
                       disabled={claimingId === item.id}
-                      className="w-full bg-slate-850 hover:bg-emerald-600 border border-slate-750 hover:border-emerald-500 disabled:opacity-50 text-slate-200 hover:text-white font-bold py-3 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-emerald-900/30"
+                      className="px-3 py-1 bg-rust text-paper text-xs"
                     >
-                      {claimingId === item.id ? (
-                        <span>Claiming &amp; Dispatching…</span>
-                      ) : (
-                        <span>💚 Claim Free Rescue Batch ({item.quantityAvailable} kg)</span>
-                      )}
+                      Claim rescue
                     </button>
                   </div>
                 ))}
@@ -185,7 +203,6 @@ export const NGODashboard: React.FC = () => {
           </div>
         </div>
       </main>
-
       <ActivityLog />
     </div>
   )
