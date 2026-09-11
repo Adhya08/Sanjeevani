@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { ActivityLog } from '../../components/log-console/ActivityLog'
 import { api, Listing, DemandForecast } from '../../services/api'
 
@@ -54,7 +55,7 @@ export const BuyerDashboard: React.FC = () => {
         quantity: Number(orderQuantity),
       })
       setActiveSessionId(res.orderId)
-      alert(`🎉 Order placed! AI Agent negotiation started for Order ID: ${res.orderId}. Watch live log in bottom right!`)
+      alert(`Order placed! Autonomous negotiation started for order ID: ${res.orderId}. Watch live log in bottom right drawer.`)
       fetchListings()
     } catch (err) {
       alert(`Order error: ${err instanceof Error ? err.message : String(err)}`)
@@ -64,51 +65,103 @@ export const BuyerDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-sky-950 to-slate-900 text-slate-100 pb-20 font-sans">
-      {/* Sticky Header */}
-      <header className="bg-slate-900/80 backdrop-blur-md border-b border-sky-500/20 p-5 sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl animate-pulse">🛒</span>
-            <div>
-              <h1 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-sky-400 via-teal-300 to-sky-200 bg-clip-text text-transparent">
-                Buyer Agent Portal
-              </h1>
-              <p className="text-xs text-sky-200/70 font-medium">खरीदार स्वायत्त पैनल — Demand Forecasts & Autonomous Bargaining</p>
-            </div>
+    <div className="min-h-screen bg-paper text-ink font-sans selection:bg-turmeric selection:text-ink">
+      {/* Top Status Strip */}
+      <div className="w-full bg-slate text-paper px-4 md:px-10 py-2 border-b border-ink/20 flex flex-wrap items-center justify-between gap-2 text-xs tabular-nums">
+        <div className="flex items-center gap-3">
+          <span className="border border-paper/30 px-1.5 py-0.5 text-[11px] font-semibold">
+            APMC Desk #2
+          </span>
+          <span className="text-paper/80">
+            Mandi wholesale discount marketplace • Real-time dynamic markdown clearance
+          </span>
+        </div>
+        <div className="flex items-center gap-4 text-paper/90">
+          <span>Active buyers connected: 28</span>
+          <span className="hidden sm:inline text-paper/70">Transit limit: &lt; 04h dispatch</span>
+        </div>
+      </div>
+
+      {/* Main Navigation Header */}
+      <header className="w-full bg-paper border-b border-ink/20 sticky top-0 z-30">
+        <div className="px-4 md:px-10 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <Link to="/" className="flex flex-col group focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none">
+              <span className="font-serif text-2xl font-bold text-ink tracking-tight">
+                Sanjeevani
+              </span>
+              <span className="text-[11px] font-sans text-ink/70 leading-none">
+                Discount marketplace & bulk buyer portal
+              </span>
+            </Link>
+
+            <div className="h-7 w-[1px] bg-ink/15 hidden md:block"></div>
+
+            <nav className="hidden md:flex items-center gap-1 text-xs font-semibold">
+              <Link to="/" className="px-3 py-1.5 text-ink/80 hover:text-ink hover:bg-ink/5 transition-none focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none">
+                Overview
+              </Link>
+              <Link to="/producer" className="px-3 py-1.5 text-ink/80 hover:text-ink hover:bg-ink/5 transition-none focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none">
+                Producer ledger
+              </Link>
+              <Link to="/buyer" className="px-3 py-1.5 bg-ink/10 text-ink border-b-2 border-turmeric focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none">
+                Discount marketplace
+              </Link>
+              <Link to="/ngo" className="px-3 py-1.5 text-ink/80 hover:text-ink hover:bg-ink/5 transition-none focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none">
+                NGO dispatch feed
+              </Link>
+              <Link to="/listings" className="px-3 py-1.5 text-ink/80 hover:text-ink hover:bg-ink/5 transition-none focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none">
+                Crate inventory
+              </Link>
+              <Link to="/analytics" className="px-3 py-1.5 text-ink/80 hover:text-ink hover:bg-ink/5 transition-none focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none">
+                Waste analytics
+              </Link>
+            </nav>
           </div>
-          <a
-            href="/"
-            className="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl text-slate-205 font-bold transition-all"
-          >
-            ← Home
-          </a>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={fetchListings}
+              className="px-3 py-1.5 bg-paper text-ink border border-ink text-xs font-semibold hover:bg-ink/5 focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none"
+            >
+              Refresh listings
+            </button>
+            <Link
+              to="/"
+              className="text-xs text-ink/70 hover:text-ink underline focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none"
+            >
+              Home overview
+            </Link>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left column: AI Demand Insights */}
+      <main className="p-4 md:p-8 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column: Demand Insights & Controls */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-slate-900/60 border border-sky-500/10 rounded-2xl p-6 backdrop-blur-sm shadow-xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4 opacity-10 text-6xl group-hover:scale-110 transition-transform">🧠</div>
-            <h2 className="font-extrabold text-sky-400 text-lg mb-4 flex items-center gap-2">
-              <span>📊</span> AI Demand Forecast
-            </h2>
-            
-            <div className="bg-slate-950/80 p-4 rounded-xl border border-sky-950/50 mb-4 space-y-2">
-              <p className="text-xs text-slate-500">Suggested Daily Order Range:</p>
-              <p className="font-extrabold text-sky-400 text-2xl">
+          <div className="border border-ink/20 p-5 bg-paper space-y-4">
+            <div className="flex items-center justify-between border-b border-ink/15 pb-2">
+              <h2 className="font-serif text-lg font-bold text-ink">
+                Demand forecasting ledger
+              </h2>
+              <span className="text-[11px] text-turmeric font-semibold">Tier 2 procurement</span>
+            </div>
+
+            <div className="p-4 bg-paper/60 border border-ink/15 space-y-2 text-xs">
+              <span className="text-ink/60 block">Suggested daily order range ({selectedProduce})</span>
+              <div className="font-serif text-2xl font-bold text-ink tabular-nums">
                 {forecast ? `${forecast.min} - ${forecast.max} kg` : '35 - 50 kg'}
-              </p>
-              <p className="text-xs text-slate-400 italic leading-relaxed mt-2 border-t border-slate-800/40 pt-2">
+              </div>
+              <p className="text-[11px] text-ink/75 pt-2 border-t border-ink/10 leading-relaxed italic">
                 "{forecast?.rationale || 'Based on 4-week moving average + local weather factor'}"
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3 text-xs">
               <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1.5">
-                  Order Quantity for Selected Crop (kg)
+                <label className="block font-semibold text-ink mb-1">
+                  Order quantity for selected batch (kg)
                 </label>
                 <input
                   type="number"
@@ -116,49 +169,53 @@ export const BuyerDashboard: React.FC = () => {
                   onChange={(e) => setOrderQuantity(Number(e.target.value))}
                   min={1}
                   max={1000}
-                  className="w-full bg-slate-950 border border-slate-850 hover:border-sky-500/40 rounded-xl p-3 text-sm text-slate-200 focus:border-sky-500 transition-colors"
+                  className="w-full bg-paper border border-ink p-2 text-ink focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none tabular-nums"
                 />
               </div>
+
               <button
+                type="button"
                 onClick={fetchListings}
-                className="w-full bg-gradient-to-r from-sky-600 to-sky-700 hover:from-sky-700 hover:to-sky-850 text-white font-bold py-3 rounded-xl text-xs transition-all transform hover:-translate-y-0.5 shadow-md shadow-sky-950/30"
+                className="w-full bg-turmeric text-paper border border-ink py-2.5 font-semibold text-xs hover:bg-turmeric/90 focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none"
               >
-                Update Demand Criteria
+                Sync market demand criteria
               </button>
             </div>
           </div>
 
-          <div className="bg-slate-900/60 border border-amber-500/10 rounded-2xl p-6 backdrop-blur-sm shadow-xl">
-            <h3 className="font-extrabold text-amber-400 mb-2 flex items-center gap-2">
-              <span>🤖</span> Agent Buying Mode
+          <div className="border border-ink/20 p-5 bg-paper space-y-3 text-xs">
+            <h3 className="font-serif text-base font-bold text-ink">
+              Automated markdown protocol
             </h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Upon ordering, your <strong>Buyer Agent</strong> negotiates directly with the producer agent to secure the best deal, leveraging real-time decay and waste risk metrics.
+            <p className="text-ink/80 leading-relaxed text-[11px]">
+              Upon initiating an order, your <strong>Buyer Agent</strong> negotiates directly with the producer desk to secure discounted bulk rates before the 36-hour rescue threshold.
             </p>
             {activeSessionId && (
-              <div className="bg-slate-950/80 p-3 rounded-xl border border-amber-950/40 text-xs mt-3">
-                <span className="font-bold text-amber-400">Active Session:</span>
-                <p className="font-mono text-slate-300 mt-1 break-all bg-black/40 p-1.5 rounded">{activeSessionId}</p>
+              <div className="p-2.5 bg-paper/70 border border-ink/20 text-[11px] mt-2">
+                <span className="font-semibold text-turmeric block">Active negotiation session</span>
+                <p className="font-mono text-ink mt-0.5 break-all">{activeSessionId}</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Right column: Search & Listings */}
+        {/* Right Column: Marketplace Batches */}
         <div className="lg:col-span-2">
-          <div className="bg-slate-900/40 border border-slate-850 rounded-2xl p-6 backdrop-blur-sm shadow-xl">
-            <div className="flex justify-between items-center mb-6 flex-wrap gap-3">
+          <div className="border border-ink/20 p-5 bg-paper">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-ink/15">
               <div>
-                <h2 className="text-xl font-extrabold text-slate-100">Available Fresh Batches</h2>
-                <p className="text-xs text-slate-400 mt-1">Sourced from verified local farm sellers</p>
+                <h2 className="font-serif text-xl font-bold text-ink">
+                  Available perishable batches
+                </h2>
+                <p className="text-xs text-ink/70">Directly sourced from Nashik APMC shed arrivals</p>
               </div>
 
-              <div className="flex gap-2 items-center">
-                <label className="text-xs text-slate-500 font-bold">Crop Filter:</label>
+              <div className="flex items-center gap-2 text-xs">
+                <label className="font-semibold text-ink">Crop filter:</label>
                 <select
                   value={selectedProduce}
                   onChange={(e) => setSelectedProduce(e.target.value)}
-                  className="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:border-sky-500 font-semibold"
+                  className="bg-paper border border-ink px-3 py-1 text-xs text-ink font-semibold focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none"
                 >
                   {produceTypes.map((type) => (
                     <option key={type} value={type}>
@@ -169,79 +226,32 @@ export const BuyerDashboard: React.FC = () => {
               </div>
             </div>
 
-            {loadingListings ? (
-              <div className="flex flex-col items-center justify-center py-20 space-y-3">
-                <div className="w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-slate-400 text-sm font-medium">Scanning live marketplace inventories…</p>
-              </div>
-            ) : listings.length === 0 ? (
-              <div className="text-center py-16 bg-slate-900/20 rounded-2xl border border-dashed border-slate-800">
-                <p className="text-slate-500 font-bold">No active listings for {selectedProduce} right now.</p>
-                <p className="text-xs text-slate-650 mt-1">Select a different crop from the filter above.</p>
-              </div>
-            ) : (
-              <div className="space-y-5">
-                {listings.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-slate-900/60 rounded-2xl border border-slate-800 p-5 hover:border-sky-500/35 transition-all duration-300 shadow-md group"
-                  >
-                    <div className="flex justify-between items-start mb-3">
+            <div className="space-y-4">
+              {loadingListings ? (
+                <div className="p-12 text-center text-xs text-ink/60">Loading Nashik APMC lots...</div>
+              ) : (
+                <div className="space-y-3">
+                  {listings.map((item) => (
+                    <div key={item.id} className="border border-ink/20 p-4 bg-paper flex justify-between items-center text-xs">
                       <div>
-                        <h3 className="font-extrabold text-slate-100 text-lg group-hover:text-sky-400 transition-colors">
-                          {item.produceType} <span className="text-slate-550 font-normal text-xs">— {item.orgName || 'Producer'}</span>
-                        </h3>
-                        <p className="text-[10px] text-slate-550 mt-0.5">📍 {item.city} • {item.distanceKm} km away</p>
+                        <p className="font-bold font-serif text-ink">{item.produceType} - {item.quantityAvailable} kg</p>
+                        <p className="text-ink/70 font-mono">Nashik APMC - ₹{item.pricePerKg}/kg</p>
                       </div>
-                      <span className="bg-sky-950/80 text-sky-300 font-extrabold text-sm px-3.5 py-1.5 rounded-xl border border-sky-800/40">
-                        ₹{item.pricePerKg}/kg
-                      </span>
+                      <button
+                        onClick={() => handlePlaceOrder(item)}
+                        disabled={orderingListingId === item.id}
+                        className="px-3 py-1.5 bg-turmeric text-paper border border-ink font-semibold hover:bg-turmeric/90"
+                      >
+                        {orderingListingId === item.id ? "Placing order..." : "Place order"}
+                      </button>
                     </div>
-
-                    <div className="grid grid-cols-3 gap-3 my-4 text-xs bg-slate-950/40 p-3 rounded-xl border border-slate-850/50">
-                      <div>
-                        <span className="text-slate-500 block mb-0.5">Available Quantity</span>
-                        <span className="font-bold text-slate-200">{item.quantityAvailable} kg</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500 block mb-0.5">Waste Risk Status</span>
-                        <span
-                          className={`font-bold ${
-                            item.wasteRiskScore > 60
-                              ? 'text-red-400'
-                              : item.wasteRiskScore > 35
-                              ? 'text-amber-400'
-                              : 'text-emerald-400'
-                          }`}
-                        >
-                          {item.wasteRiskScore}% Risk
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500 block mb-0.5">Storage Temp</span>
-                        <span className="font-bold text-slate-200">{item.storageTemp}°C</span>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => handlePlaceOrder(item)}
-                      disabled={orderingListingId === item.id || item.quantityAvailable <= 0}
-                      className="w-full bg-slate-850 hover:bg-sky-600 border border-slate-755 hover:border-sky-505 disabled:opacity-50 text-slate-200 hover:text-white font-bold py-3 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-sky-900/30"
-                    >
-                      {orderingListingId === item.id ? (
-                        <span>Initiating AI Negotiation…</span>
-                      ) : (
-                        <span>🛒 Order Batch &amp; Start Bargaining ({orderQuantity} kg)</span>
-                      )}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>
-
       <ActivityLog sessionId={activeSessionId} />
     </div>
   )
