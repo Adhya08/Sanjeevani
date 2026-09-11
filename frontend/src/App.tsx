@@ -284,7 +284,184 @@ export const App: React.FC = () => {
           </div>
         </section>
 
-        <div className="hidden">{activeStage}</div>
+        {/* Visually Quiet Below the Fold: Three-Tier Rescue Clearance Pipeline */}
+        <section className="w-full px-4 md:px-10 py-10 md:py-14 border-b border-ink/20 bg-paper">
+          <div className="flex flex-col md:flex-row md:items-baseline justify-between pb-3 mb-6 border-b-2 border-slate">
+            <div>
+              <h2 className="font-serif text-2xl md:text-3xl text-ink">
+                Three-tier rescue clearance pipeline
+              </h2>
+              <p className="text-xs text-ink/70 mt-0.5">
+                Protocol schedule B-4 • Continuous ledger handoff with zero intermediary hold time
+              </p>
+            </div>
+            <span className="text-xs text-ink/60 mt-1 md:mt-0 tabular-nums">
+              Active mandi cycle: Nashik Panchavati yard
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 border border-ink/20 divide-y md:divide-y-0 md:divide-x divide-ink/20 bg-paper">
+            {/* Tier 1: The Farmer / Producer */}
+            <div className="p-6 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-3 border-b border-ink/15 text-xs">
+                  <span className="font-semibold text-slate">Tier 1</span>
+                  <span className="text-ink/60">Stage 0–24h</span>
+                </div>
+
+                <h3 className="font-serif text-xl text-ink mt-3 mb-2">
+                  The Farmer / Producer
+                </h3>
+
+                <p className="text-xs text-ink/80 leading-relaxed mb-4">
+                  Logs harvest lots directly into the yard node. IoT pulp and temperature sensors calculate
+                  the crop's physiological decay curve to initiate market discovery before visible softening begins.
+                </p>
+
+                <ul className="space-y-2 text-xs text-ink/90 border-t border-ink/10 pt-3">
+                  <li className="flex items-start gap-1.5">
+                    <span className="font-bold text-turmeric">01.</span>
+                    <span><strong>Field sensor telemetry:</strong> Crate humidity and core pulp thermometers sync at gate weighment.</span>
+                  </li>
+                  <li className="flex items-start gap-1.5">
+                    <span className="font-bold text-turmeric">02.</span>
+                    <span><strong>Decay curve calculation:</strong> Algorithmic shelf-life modeled against ambient mandi heat index.</span>
+                  </li>
+                  <li className="flex items-start gap-1.5">
+                    <span className="font-bold text-turmeric">03.</span>
+                    <span><strong>Distress prevention:</strong> Automatic failover triggers prevent distressed dump-offs at day-end.</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mt-6 pt-3 border-t border-ink/15 flex items-center justify-between text-xs">
+                <span className="text-ink/60">Folio register</span>
+                <span className="font-semibold text-slate">Dispatch desk #1</span>
+              </div>
+            </div>
+
+            {/* Tier 2: The Discount Buyer */}
+            <div className="p-6 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-3 border-b border-ink/15 text-xs">
+                  <span className="font-semibold text-turmeric">Tier 2</span>
+                  <span className="text-ink/60">Stage 24–36h</span>
+                </div>
+
+                <h3 className="font-serif text-xl text-ink mt-3 mb-2">
+                  The Discount Buyer
+                </h3>
+
+                <p className="text-xs text-ink/80 leading-relaxed mb-4">
+                  Commercial food processors, sauce makers, and institutional kitchens purchase high-volume,
+                  ripe produce under automated hourly markdown ladders before retail viability expires.
+                </p>
+
+                <ul className="space-y-2 text-xs text-ink/90 border-t border-ink/10 pt-3">
+                  <li className="flex items-start gap-1.5">
+                    <span className="font-bold text-turmeric">01.</span>
+                    <span><strong>Markdown ladder:</strong> Dynamic price cuts (-20% to -65%) decrement hourly to stimulate instant bids.</span>
+                  </li>
+                  <li className="flex items-start gap-1.5">
+                    <span className="font-bold text-turmeric">02.</span>
+                    <span><strong>Bulk procurement:</strong> Dedicated dispatch routes for pulping units and canteen networks.</span>
+                  </li>
+                  <li className="flex items-start gap-1.5">
+                    <span className="font-bold text-turmeric">03.</span>
+                    <span><strong>4-hour pickup:</strong> Immediate marshaling bay access ensures clearance within transit safety margins.</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mt-6 pt-3 border-t border-ink/15 flex items-center justify-between text-xs">
+                <span className="text-ink/60">Auction clearance</span>
+                <span className="font-semibold text-turmeric">Discount desk #2</span>
+              </div>
+            </div>
+
+            {/* Tier 3: The Rescue NGO */}
+            <div className="p-6 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-3 border-b border-ink/15 text-xs">
+                  <span className="font-semibold text-rust">Tier 3</span>
+                  <span className="text-ink/60">Stage 36–48h</span>
+                </div>
+
+                <h3 className="font-serif text-xl text-ink mt-3 mb-2">
+                  The Rescue NGO
+                </h3>
+
+                <p className="text-xs text-ink/80 leading-relaxed mb-4">
+                  When commercial bidding closes at the 36-hour mark, lots transfer at zero cost to accredited
+                  community feeding programs and relief kitchens under strict food safety guidelines.
+                </p>
+
+                <ul className="space-y-2 text-xs text-ink/90 border-t border-ink/10 pt-3">
+                  <li className="flex items-start gap-1.5">
+                    <span className="font-bold text-rust">01.</span>
+                    <span><strong>Zero-cost routing:</strong> Immediate ownership handoff occurs automatically when auction closes.</span>
+                  </li>
+                  <li className="flex items-start gap-1.5">
+                    <span className="font-bold text-rust">02.</span>
+                    <span><strong>Fleet dispatch alerts:</strong> Verified NGO transit vans are directed to APMC Platform 7 within 45 minutes.</span>
+                  </li>
+                  <li className="flex items-start gap-1.5">
+                    <span className="font-bold text-rust">03.</span>
+                    <span><strong>FSSAI audit stamps:</strong> Edibility and safe handling verified via rapid optical and thermal check.</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mt-6 pt-3 border-t border-ink/15 flex items-center justify-between text-xs">
+                <span className="text-ink/60">Relief marshaling</span>
+                <span className="font-semibold text-rust">Rescue desk #3</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Visually Quiet Mandi Statistics Tally Strip */}
+        <section className="w-full bg-paper border-b border-ink/20">
+          <div className="px-4 md:px-10 py-2.5 bg-slate text-paper text-xs flex flex-wrap items-center justify-between">
+            <span className="font-semibold">Official monthly physical aggregate summary</span>
+            <span className="text-paper/70 tabular-nums">Audit record: closed 24:00 hrs IST</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-ink/20 text-ink">
+            <div className="p-6">
+              <div className="text-xs text-ink/70">Produce salvaged this month</div>
+              <div className="font-serif text-3xl font-bold text-ink mt-1 tabular-nums">
+                4,180 <span className="font-sans text-sm font-normal text-ink/60">quintals</span>
+              </div>
+              <div className="text-xs text-moss font-semibold mt-1 tabular-nums">+18.4% vs previous cycle</div>
+            </div>
+
+            <div className="p-6">
+              <div className="text-xs text-ink/70">Farmer capital recovered</div>
+              <div className="font-serif text-3xl font-bold text-turmeric mt-1 tabular-nums">
+                ₹84.2 <span className="font-sans text-sm font-normal text-ink/60">lakh</span>
+              </div>
+              <div className="text-xs text-ink/60 mt-1">Direct RTGS mandi settlements</div>
+            </div>
+
+            <div className="p-6">
+              <div className="text-xs text-ink/70">Meals distributed via NGOs</div>
+              <div className="font-serif text-3xl font-bold text-rust mt-1 tabular-nums">
+                312,400 <span className="font-sans text-sm font-normal text-ink/60">units</span>
+              </div>
+              <div className="text-xs text-ink/60 mt-1">Zero biological waste diverted</div>
+            </div>
+
+            <div className="p-6">
+              <div className="text-xs text-ink/70">Zero-loss mandis</div>
+              <div className="font-serif text-3xl font-bold text-ink mt-1 tabular-nums">
+                18 <span className="font-sans text-sm font-normal text-ink/60">nodes</span>
+              </div>
+              <div className="text-xs text-ink/60 mt-1">Maharashtra & Gujarat regional hubs</div>
+            </div>
+          </div>
+        </section>
+
       </main>
       <ActivityLog sessionId={undefined} />
     </div>
