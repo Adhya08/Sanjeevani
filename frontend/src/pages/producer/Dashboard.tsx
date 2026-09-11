@@ -537,6 +537,7 @@ export const ProducerDashboard: React.FC = () => {
           </div>
         </div>
       </main>
+
       {/* Add Produce Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-ink/50 z-50 flex items-center justify-center p-4">
