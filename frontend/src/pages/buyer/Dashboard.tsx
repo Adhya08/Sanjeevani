@@ -226,32 +226,86 @@ export const BuyerDashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="space-y-4">
-              {loadingListings ? (
-                <div className="p-12 text-center text-xs text-ink/60">Loading Nashik APMC lots...</div>
-              ) : (
-                <div className="space-y-3">
-                  {listings.map((item) => (
-                    <div key={item.id} className="border border-ink/20 p-4 bg-paper flex justify-between items-center text-xs">
-                      <div>
-                        <p className="font-bold font-serif text-ink">{item.produceType} - {item.quantityAvailable} kg</p>
-                        <p className="text-ink/70 font-mono">Nashik APMC - ₹{item.pricePerKg}/kg</p>
+            {loadingListings ? (
+              <div className="p-12 text-center text-xs text-ink/60">
+                Scanning live mandi discount lots…
+              </div>
+            ) : listings.length === 0 ? (
+              <div className="p-8 text-center border border-ink/15 bg-paper/40 text-xs">
+                <p className="font-semibold text-ink">No active listings found for {selectedProduce}.</p>
+                <p className="text-ink/60 mt-1">Select a different crop from the filter above.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {listings.map((item) => {
+                  const isCritical = item.wasteRiskScore > 60
+                  const isModerate = item.wasteRiskScore > 35 && item.wasteRiskScore <= 60
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="border border-ink/20 p-4 bg-paper hover:bg-paper/80 transition-none space-y-3"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-serif text-lg font-bold text-ink">
+                            {item.produceType}{' '}
+                            <span className="font-sans text-xs font-normal text-ink/60">
+                              — {item.orgName || 'Nashik Producer Desk'}
+                            </span>
+                          </h3>
+                          <p className="text-xs text-ink/60 tabular-nums">
+                            Lot #{item.id.slice(0, 12)} • {item.city} • {item.distanceKm || 4.2} km away
+                          </p>
+                        </div>
+
+                        <span className="border border-ink px-2.5 py-1 text-sm font-bold text-ink bg-paper tabular-nums">
+                          ₹{item.pricePerKg}/kg
+                        </span>
                       </div>
+
+                      <div className="grid grid-cols-3 gap-2 p-2.5 bg-paper/60 border border-ink/15 text-xs tabular-nums">
+                        <div>
+                          <span className="text-ink/60 block text-[11px]">Available stock</span>
+                          <span className="font-bold text-ink">{item.quantityAvailable} kg</span>
+                        </div>
+                        <div>
+                          <span className="text-ink/60 block text-[11px]">Waste risk score</span>
+                          <span
+                            className={`font-bold ${
+                              isCritical ? 'text-rust' : isModerate ? 'text-turmeric' : 'text-moss'
+                            }`}
+                          >
+                            {item.wasteRiskScore}% ({isCritical ? 'Critical' : isModerate ? 'Markdown' : 'Safe'})
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-ink/60 block text-[11px]">Storage temperature</span>
+                          <span className="font-bold text-ink">{item.storageTemp}°C</span>
+                        </div>
+                      </div>
+
                       <button
+                        type="button"
                         onClick={() => handlePlaceOrder(item)}
-                        disabled={orderingListingId === item.id}
-                        className="px-3 py-1.5 bg-turmeric text-paper border border-ink font-semibold hover:bg-turmeric/90"
+                        disabled={orderingListingId === item.id || item.quantityAvailable <= 0}
+                        className="w-full bg-turmeric text-paper border border-ink hover:bg-turmeric/90 disabled:opacity-50 py-2.5 text-xs font-semibold transition-none flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:outline-none"
                       >
-                        {orderingListingId === item.id ? "Placing order..." : "Place order"}
+                        {orderingListingId === item.id ? (
+                          <span>Negotiating rate with producer…</span>
+                        ) : (
+                          <span>Order batch & start bargaining ({orderQuantity} kg)</span>
+                        )}
                       </button>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
         </div>
       </main>
+
       <ActivityLog sessionId={activeSessionId} />
     </div>
   )
